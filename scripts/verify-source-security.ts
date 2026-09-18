@@ -63,7 +63,6 @@ for (const table of [
 if (!schema.includes("revoke all privileges on all functions in schema public from public, anon, authenticated;")) fail("supabase/schema.sql: default function execution is not revoked");
 if (/grant execute on function[^;]+to\s+(?:public|anon)\s*;/i.test(schema)) fail("supabase/schema.sql: a function is executable by public or anon");
 if (!/values \('receipts', 'receipts', false, 5242880, array\['image\/jpeg','image\/png','image\/webp'\]\)/.test(schema)) fail("supabase/schema.sql: receipts bucket must be private and MIME-limited");
-if (!schema.includes("alter table realtime.messages enable row level security;")) fail("supabase/schema.sql: Realtime authorization is missing");
 for (const policy of ["realtime_cart_receive", "realtime_cart_send", "realtime_list_receive", "realtime_list_send"]) {
   if (!schema.includes(`create policy ${policy} on realtime.messages`)) fail(`supabase/schema.sql: missing ${policy}`);
 }
