@@ -25,6 +25,12 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     ...(invitesCursor ? { invites: invitesCursor } : {}),
     ...(auditCursor ? { audit: auditCursor } : {}),
   };
-  const data = await loadAdminData(cursors);
+  let data;
+  try {
+    data = await loadAdminData(cursors);
+  } catch (error) {
+    console.error("Admin page failed to load", { errorCode: error instanceof Error ? error.message : "UNKNOWN" });
+    throw error;
+  }
   return <AdminWorkspace data={data} initialTab={parsedTab.data} cursorState={{ users: Boolean(usersCursor), invites: Boolean(invitesCursor), audit: Boolean(auditCursor) }} />;
 }

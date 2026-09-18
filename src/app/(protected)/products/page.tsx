@@ -7,6 +7,12 @@ export default async function ProductsPage({ searchParams }: { searchParams: Pro
   const query = params.q?.trim().slice(0, 200) ?? "";
   const selectedId = params.product;
   const elevated = profile.role !== "user";
-  const data = await loadProducts(query, selectedId, elevated);
+  let data;
+  try {
+    data = await loadProducts(query, selectedId, elevated);
+  } catch (error) {
+    console.error("Products page failed to load", { errorCode: error instanceof Error ? error.message : "UNKNOWN" });
+    throw error;
+  }
   return <ProductsWorkspace data={data} query={query} elevated={elevated} isAdmin={profile.role === "admin"} />;
 }
