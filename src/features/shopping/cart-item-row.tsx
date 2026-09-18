@@ -1,5 +1,6 @@
 "use client";
 
+import { initialCartMutationResult } from "@/lib/actions/types";
 import Decimal from "decimal.js";
 import { Minus, Pencil, Plus, Trash2 } from "lucide-react";
 import { useActionState, useState, type FormEvent } from "react";
@@ -12,7 +13,7 @@ import { formatMoney, parseLocalizedDecimal } from "@/lib/money";
 import { enqueueCartDelete, enqueueCartUpdate } from "@/lib/offline/queue";
 import { colorForUser } from "@/lib/user-colors";
 import type { CartItem } from "@/types/domain";
-import { deleteCartItemAction, initialCartMutationResult, updateCartItemAction } from "./actions";
+import { deleteCartItemAction, updateCartItemAction } from "./actions";
 import { MutationFeedback } from "./mutation-feedback";
 
 function localized(value: string, locale: "pt" | "en"): string { return locale === "pt" ? value.replace(".", ",") : value; }

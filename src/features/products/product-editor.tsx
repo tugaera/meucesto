@@ -1,5 +1,6 @@
 "use client";
 
+import { initialProductMutationResult } from "@/lib/actions/types";
 import { ExternalLink, ScanLine, Search, X } from "lucide-react";
 import Link from "next/link";
 import { useActionState, useCallback, useEffect, useRef, useState } from "react";
@@ -11,10 +12,7 @@ import { useMutationId } from "@/lib/actions/use-mutation-id";
 import { barcodeLookupResponseSchema, type ProductDetail, type ReferenceData } from "@/types/domain";
 import { ScannerLauncher } from "@/features/shopping/scanner-launcher";
 import {
-  createCatalogProductAction,
-  initialProductMutationResult,
-  saveCatalogProductAction,
-} from "./actions";
+  createCatalogProductAction, saveCatalogProductAction } from "./actions";
 import { ProductMutationFeedback } from "./product-mutation-feedback";
 
 interface EditorValues {

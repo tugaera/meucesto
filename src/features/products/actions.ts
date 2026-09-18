@@ -11,7 +11,6 @@ import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@/types/database";
 
 export type ProductMutationResult = ActionResult<{ data: Json; message: string }>;
-export const initialProductMutationResult: ProductMutationResult = { success: false, errorCode: "IDLE" };
 const object = (formData: FormData) => Object.fromEntries(formData.entries());
 const invalid = (error: z.ZodError): ProductMutationResult => ({ success: false, errorCode: "VALIDATION_ERROR", fieldErrors: error.flatten().fieldErrors as FieldErrors });
 const failed = (error: unknown): ProductMutationResult => ({ success: false, errorCode: toErrorCode(error) });

@@ -1,5 +1,6 @@
 "use client";
 
+import { initialListMutationResult } from "@/lib/actions/types";
 import { Pencil, Trash2 } from "lucide-react";
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { Input } from "@/components/ui/field";
 import { useT } from "@/i18n/provider";
 import { colorForUser } from "@/lib/user-colors";
 import type { ListItem } from "@/types/domain";
-import { deleteListItemAction, initialListMutationResult, updateListItemAction } from "./actions";
+import { deleteListItemAction, updateListItemAction } from "./actions";
 import { ListMutationFeedback } from "./mutation-feedback";
 
 export function ListItemRow({ listId, item }: { listId: string; item: ListItem }) {

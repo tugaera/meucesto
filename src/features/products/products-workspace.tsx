@@ -1,5 +1,6 @@
 "use client";
 
+import { initialProductMutationResult } from "@/lib/actions/types";
 import Decimal from "decimal.js";
 import { Barcode, CalendarDays, History, LoaderCircle, PackageOpen, Search, Store, Trash2 } from "lucide-react";
 import Link from "next/link";
@@ -15,7 +16,7 @@ import { useMutationId } from "@/lib/actions/use-mutation-id";
 import { formatMoney } from "@/lib/money";
 import { productSummariesSchema, type PriceHistoryEntry, type ProductSummary } from "@/types/domain";
 import type { ProductCursor, ProductsData } from "./data";
-import { deletePriceEntryAction, deleteProductAction, initialProductMutationResult, savePriceEntryAction } from "./actions";
+import { deletePriceEntryAction, deleteProductAction, savePriceEntryAction } from "./actions";
 import { AddProductDialog, ProductEditor } from "./product-editor";
 import { ProductMutationFeedback } from "./product-mutation-feedback";
 

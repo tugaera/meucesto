@@ -35,11 +35,18 @@ export interface ShoppingData {
   requestedTrackingList: ListDirectoryItem | null;
 }
 
-async function expectRpc<T>(promise: PromiseLike<{ data: unknown; error: { message: string } | null }>, schema: z.ZodType<T>): Promise<T> {
+async function expectRpc<T>(name: string, promise: PromiseLike<{ data: unknown; error: { message: string; code?: string; details?: string; hint?: string } | null }>, schema: z.ZodType<T>): Promise<T> {
   const { data, error } = await promise;
-  if (error) throw new Error(toErrorCode(error));
+  if (error) {
+    const errorCode = toErrorCode(error);
+    console.error("Shopping RPC failed", { name, errorCode, code: error.code, message: error.message, details: error.details, hint: error.hint });
+    throw new Error(errorCode);
+  }
   const parsed = schema.safeParse(data);
-  if (!parsed.success) throw new Error("INVALID_SERVER_RESPONSE");
+  if (!parsed.success) {
+    console.error("Shopping RPC returned invalid data", { name, issues: parsed.error.issues.map((issue) => ({ path: issue.path.join("."), code: issue.code, message: issue.message })) });
+    throw new Error("INVALID_SERVER_RESPONSE");
+  }
   return parsed.data;
 }
 
@@ -49,21 +56,21 @@ export async function loadShoppingData(requestedCartId?: string, requestedListId
   if (!user) throw new Error("NOT_AUTHENTICATED");
   let cartId = requestedCartId;
   if (!cartId || !z.uuid().safeParse(cartId).success) {
-    const created = await expectRpc(supabase.rpc("get_or_create_active_cart", { mutation_id: crypto.randomUUID() }), cartSchema);
+    const created = await expectRpc("get_or_create_active_cart", supabase.rpc("get_or_create_active_cart", { mutation_id: crypto.randomUUID() }), cartSchema);
     cartId = created.id;
   }
-  const cart = await expectRpc(supabase.rpc("get_cart_by_id", { cart_id: cartId }), cartSchema);
+  const cart = await expectRpc("get_cart_by_id", supabase.rpc("get_cart_by_id", { cart_id: cartId }), cartSchema);
   const [items, references, lists, sharedCarts] = await Promise.all([
-    expectRpc(supabase.rpc("get_cart_items", { cart_id: cartId }), cartItemsSchema),
-    expectRpc(supabase.rpc("get_catalog_reference_data"), referenceDataSchema),
-    expectRpc(supabase.rpc("get_lists_directory", { page_size: 100 }), listDirectorySchema),
-    expectRpc(supabase.rpc("get_shared_active_carts"), z.array(sharedCartSchema)),
+    expectRpc("get_cart_items", supabase.rpc("get_cart_items", { cart_id: cartId }), cartItemsSchema),
+    expectRpc("get_catalog_reference_data", supabase.rpc("get_catalog_reference_data"), referenceDataSchema),
+    expectRpc("get_lists_directory", supabase.rpc("get_lists_directory", { page_size: 100 }), listDirectorySchema),
+    expectRpc("get_shared_active_carts", supabase.rpc("get_shared_active_carts"), z.array(sharedCartSchema)),
   ]);
   const members = cart.isOwner
-    ? await expectRpc(supabase.rpc("get_cart_members", { cart_id: cartId }), z.array(memberSchema))
+    ? await expectRpc("get_cart_members", supabase.rpc("get_cart_members", { cart_id: cartId }), z.array(memberSchema))
     : [];
   const tracking = cart.trackingListId
-    ? await expectRpc(supabase.rpc("get_tracking_state", { cart_id: cartId }), trackingSchema)
+    ? await expectRpc("get_tracking_state", supabase.rpc("get_tracking_state", { cart_id: cartId }), trackingSchema)
     : null;
   const requestedTrackingList = requestedListId && requestedListId !== cart.trackingListId
     ? lists.find((list) => list.id === requestedListId) ?? null

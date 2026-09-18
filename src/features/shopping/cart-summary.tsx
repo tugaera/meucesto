@@ -1,12 +1,13 @@
 "use client";
 
+import { initialCartMutationResult } from "@/lib/actions/types";
 import { CheckCircle2, Trash2 } from "lucide-react";
 import { useActionState, useState } from "react";
 import { ConfirmButton } from "@/components/ui/confirm-button";
 import { useT } from "@/i18n/provider";
 import { calculateCartSavings, formatMoney } from "@/lib/money";
 import type { Cart, CartItem } from "@/types/domain";
-import { deleteActiveCartAction, finalizeCartAction, initialCartMutationResult } from "./actions";
+import { deleteActiveCartAction, finalizeCartAction } from "./actions";
 import { MutationFeedback } from "./mutation-feedback";
 
 export function CartSummary({ cart, items, checkoutKey }: { cart: Cart; items: CartItem[]; checkoutKey: string }) {

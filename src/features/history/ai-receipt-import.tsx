@@ -1,5 +1,6 @@
 "use client";
 
+import { initialAiReceiptResult, initialAiReviewDecisionResult } from "@/lib/actions/types";
 import { Check, Sparkles, X } from "lucide-react";
 import Link from "next/link";
 import { useActionState, useState } from "react";
@@ -11,7 +12,7 @@ import { useT } from "@/i18n/provider";
 import { useMutationId } from "@/lib/actions/use-mutation-id";
 import type { ReceiptReview } from "@/lib/ai/types";
 import { formatMoney } from "@/lib/money";
-import { extractReceiptAction, initialAiReceiptResult, initialAiReviewDecisionResult, recordAiReviewDecisionAction } from "./ai-actions";
+import { extractReceiptAction, recordAiReviewDecisionAction } from "./ai-actions";
 
 type Decision = "accepted" | "rejected";
 

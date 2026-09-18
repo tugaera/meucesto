@@ -10,7 +10,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 export type ProfileActionResult = ActionResult<{ message: string }>;
-export const initialProfileActionResult: ProfileActionResult = { success: false, errorCode: "IDLE" };
 const fields = (formData: FormData) => Object.fromEntries(formData.entries());
 const invalid = (error: z.ZodError): ProfileActionResult => ({ success: false, errorCode: "VALIDATION_ERROR", fieldErrors: error.flatten().fieldErrors as FieldErrors });
 const mutationIdSchema = z.uuid();

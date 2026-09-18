@@ -1,5 +1,6 @@
 "use client";
 
+import { initialReceiptMutationResult, initialSignedReceiptResult } from "@/lib/actions/types";
 import { ArrowDown, ArrowUp, Eye, FileImage, Trash2, Upload } from "lucide-react";
 import Image from "next/image";
 import { useActionState, useState } from "react";
@@ -13,14 +14,7 @@ import { useMutationId } from "@/lib/actions/use-mutation-id";
 import type { ReceiptMetadata } from "@/types/domain";
 import { AiReceiptImport } from "./ai-receipt-import";
 import {
-  deleteReceiptAction,
-  getReceiptSignedUrlsAction,
-  initialReceiptMutationResult,
-  initialSignedReceiptResult,
-  reorderReceiptsAction,
-  uploadReceiptAction,
-  type ReceiptMutationResult,
-} from "./receipt-actions";
+  deleteReceiptAction, getReceiptSignedUrlsAction, reorderReceiptsAction, uploadReceiptAction, type ReceiptMutationResult } from "./receipt-actions";
 
 function ReceiptFeedback({ result }: { result: ReceiptMutationResult }) {
   const { t } = useT();

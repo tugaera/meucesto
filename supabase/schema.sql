@@ -724,18 +724,19 @@ security definer
 set search_path = ''
 as $$
 declare
+  requested_mutation_id alias for $1;
   caller_id uuid := public.require_authenticated();
   inserted_id uuid;
   stored_operation text;
   stored_result jsonb;
 begin
-  if mutation_id is null then
+  if requested_mutation_id is null then
     raise exception using errcode = '22023', message = 'VALIDATION_ERROR';
   end if;
 
   insert into public.mutation_receipts(user_id, mutation_id, operation, resource_type, resource_id)
-  values (caller_id, mutation_id, operation_name, target_type, target_id)
-  on conflict (user_id, mutation_id) do nothing
+  values (caller_id, requested_mutation_id, operation_name, target_type, target_id)
+  on conflict on constraint mutation_receipts_pkey do nothing
   returning public.mutation_receipts.mutation_id into inserted_id;
 
   if inserted_id is not null then
@@ -745,7 +746,7 @@ begin
   select m.operation, m.result
     into stored_operation, stored_result
   from public.mutation_receipts m
-  where m.user_id = caller_id and m.mutation_id = begin_mutation.mutation_id
+  where m.user_id = caller_id and m.mutation_id = requested_mutation_id
   for update;
 
   if stored_operation is distinct from operation_name then

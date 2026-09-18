@@ -1,5 +1,6 @@
 "use client";
 
+import { initialCartMutationResult } from "@/lib/actions/types";
 import { Info, Plus, Search, Tag, X } from "lucide-react";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useActionState } from "react";
@@ -9,7 +10,7 @@ import { useT } from "@/i18n/provider";
 import { parseLocalizedDecimal } from "@/lib/money";
 import { enqueueCartAdd } from "@/lib/offline/queue";
 import { barcodeLookupResponseSchema, type Cart, type ProductSummary, type ReferenceData } from "@/types/domain";
-import { addCartItemAction, createProductAndAddAction, initialCartMutationResult } from "./actions";
+import { addCartItemAction, createProductAndAddAction } from "./actions";
 import { MutationFeedback } from "./mutation-feedback";
 import { ProductTypeahead } from "./product-typeahead";
 import { ScannerLauncher } from "./scanner-launcher";

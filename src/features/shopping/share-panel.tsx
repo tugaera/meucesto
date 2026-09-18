@@ -1,5 +1,6 @@
 "use client";
 
+import { initialCartMutationResult } from "@/lib/actions/types";
 import { Copy, Link2, Share2, UserMinus } from "lucide-react";
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { Input } from "@/components/ui/field";
 import { useT } from "@/i18n/provider";
 import { useMutationId } from "@/lib/actions/use-mutation-id";
 import { getPublicEnvironment } from "@/lib/env/public";
-import { initialCartMutationResult, revokeCartShareAction, rotateCartJoinTokenAction, shareCartAction } from "./actions";
+import { revokeCartShareAction, rotateCartJoinTokenAction, shareCartAction } from "./actions";
 import { MutationFeedback } from "./mutation-feedback";
 
 interface Member { shareId: string; userId: string; email: string; createdAt: string }

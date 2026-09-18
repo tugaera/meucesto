@@ -10,7 +10,6 @@ import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@/types/database";
 
 export type ListMutationResult = ActionResult<{ data: Json; message: string }>;
-export const initialListMutationResult: ListMutationResult = { success: false, errorCode: "IDLE" };
 const object = (formData: FormData) => Object.fromEntries(formData.entries());
 const invalid = (error: z.ZodError): ListMutationResult => ({ success: false, errorCode: "VALIDATION_ERROR", fieldErrors: error.flatten().fieldErrors as FieldErrors });
 const failed = (error: unknown): ListMutationResult => ({ success: false, errorCode: toErrorCode(error) });
