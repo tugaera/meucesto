@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #17211d;
+  --muted: #66736d;
+  --line: #d9dfdc;
+  --surface: #ffffff;
+  --canvas: #f7f9f8;
+  --emerald: #059669;
+  --emerald-dark: #047857;
+  --emerald-deep: #065f46;
+  --emerald-soft: #e8f7f1;
+  --coral: #e85d4a;
+  --coral-soft: #fff0ed;
+  --amber: #b7791f;
+  --amber-soft: #fff8e6;
+  --focus: #2563eb;
+  --danger: #c2413b;
+  --radius: 6px;
+  --sidebar: 244px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: 0;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background:
+    linear-gradient(#e3e8e5 1px, transparent 1px),
+    var(--canvas);
+  background-size: 100% 72px;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  letter-spacing: 0;
+}
+
+button,
+a,
+input,
+select,
+textarea,
+summary {
+  outline: none;
+}
+
+:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 34%, transparent);
+  border-color: var(--focus) !important;
+}
+
+::selection {
+  background: #bce9d8;
+  color: #10211a;
+}
+
+.screen-reader-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.page-enter {
+  animation: page-enter 220ms ease-out both;
+}
+
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media (max-width: 767px) {
+  body {
+    background-size: 100% 64px;
+    padding-bottom: 78px;
+  }
+}
