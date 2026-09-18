@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.4] - 2026-09-19
+
+### Fixed
+- Improved camera barcode recognition with retail format prioritization, harder scanning, higher-resolution rear-camera capture, continuous focus when supported, optional flashlight control, visible scanning guidance, translated camera errors, and reliable stream cleanup.
+
 ## [1.0.3] - 2026-09-19
 
 ### Added

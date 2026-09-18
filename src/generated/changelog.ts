@@ -12,6 +12,18 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.4",
+    "date": "2026-09-19",
+    "categories": [
+      {
+        "name": "Fixed",
+        "entries": [
+          "Improved camera barcode recognition with retail format prioritization, harder scanning, higher-resolution rear-camera capture, continuous focus when supported, optional flashlight control, visible scanning guidance, translated camera errors, and reliable stream cleanup."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.3",
     "date": "2026-09-19",
     "categories": [
