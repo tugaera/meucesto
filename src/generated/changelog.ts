@@ -12,6 +12,18 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.5",
+    "date": "2026-09-19",
+    "categories": [
+      {
+        "name": "Fixed",
+        "entries": [
+          "Fixed camera scanning on desktop and Android by avoiding ZXing's broken `TRY_HARDER` canvas rotation path while retaining focused high-resolution EAN and UPC recognition."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.4",
     "date": "2026-09-19",
     "categories": [

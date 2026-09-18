@@ -9,11 +9,11 @@ import {
 } from "@/lib/barcode/scanner";
 
 describe("barcode scanner configuration", () => {
-  it("prioritizes common retail formats and harder one-dimensional scanning", () => {
+  it("prioritizes common retail formats without ZXing's broken rotation path", () => {
     const hints = createProductBarcodeHints();
     const formats = hints.get(DecodeHintType.POSSIBLE_FORMATS);
 
-    expect(hints.get(DecodeHintType.TRY_HARDER)).toBe(true);
+    expect(hints.has(DecodeHintType.TRY_HARDER)).toBe(false);
     expect(formats).toEqual(expect.arrayContaining([
       BarcodeFormat.EAN_13,
       BarcodeFormat.EAN_8,

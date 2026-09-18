@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.5] - 2026-09-19
+
+### Fixed
+- Fixed camera scanning on desktop and Android by avoiding ZXing's broken `TRY_HARDER` canvas rotation path while retaining focused high-resolution EAN and UPC recognition.
+
 ## [1.0.4] - 2026-09-19
 
 ### Fixed

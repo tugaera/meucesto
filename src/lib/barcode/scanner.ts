@@ -27,7 +27,6 @@ export const PRODUCT_CAMERA_CONSTRAINTS: MediaStreamConstraints = {
 export function createProductBarcodeHints(): Map<DecodeHintType, unknown> {
   return new Map<DecodeHintType, unknown>([
     [DecodeHintType.POSSIBLE_FORMATS, [...PRODUCT_BARCODE_FORMATS]],
-    [DecodeHintType.TRY_HARDER, true],
   ]);
 }
 
