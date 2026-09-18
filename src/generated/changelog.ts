@@ -12,6 +12,18 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.2",
+    "date": "2026-09-18",
+    "categories": [
+      {
+        "name": "Fixed",
+        "entries": [
+          "Improved hosted signup diagnostics by mapping duplicate-email and Supabase Auth hook failures to explicit translated errors and logging server-side Supabase signup details."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.1",
     "date": "2026-09-18",
     "categories": [

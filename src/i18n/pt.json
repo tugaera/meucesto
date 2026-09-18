@@ -343,6 +343,8 @@
   "errors.CURRENT_PASSWORD_INVALID": "A palavra-passe atual está incorreta.",
   "errors.PASSWORD_UPDATE_FAILED": "Não foi possível alterar a palavra-passe.",
   "errors.ACCOUNT_DELETE_FAILED": "Não foi possível eliminar a conta. Não foi agendada qualquer purga de recibos.",
+  "errors.AUTH_EMAIL_ALREADY_REGISTERED": "Este email já está registado. Entra na conta ou usa a recuperação de palavra-passe.",
+  "errors.AUTH_HOOK_FAILED": "Não foi possível concluir o registo porque o hook de Auth do Supabase precisa de atenção.",
   "errors.EMAIL_DELIVERY_FAILED": "O convite foi criado, mas não foi possível entregar o email.",
   "errors.RESOURCE_IN_USE": "Este elemento ainda está em uso e não pode ser eliminado permanentemente.",
   "errors.RESOURCE_IN_USE_OR_NOT_FOUND": "Este elemento está em uso ou já não existe.",

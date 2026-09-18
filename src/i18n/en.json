@@ -343,6 +343,8 @@
   "errors.CURRENT_PASSWORD_INVALID": "The current password is incorrect.",
   "errors.PASSWORD_UPDATE_FAILED": "The password could not be updated.",
   "errors.ACCOUNT_DELETE_FAILED": "The account could not be deleted. No receipt purge was scheduled.",
+  "errors.AUTH_EMAIL_ALREADY_REGISTERED": "This email is already registered. Sign in or use password recovery.",
+  "errors.AUTH_HOOK_FAILED": "Signup could not complete because the Supabase Auth hook needs attention.",
   "errors.EMAIL_DELIVERY_FAILED": "The invitation was created, but the email could not be delivered.",
   "errors.RESOURCE_IN_USE": "This item is still in use and cannot be permanently deleted.",
   "errors.RESOURCE_IN_USE_OR_NOT_FOUND": "This item is in use or no longer exists.",

@@ -18,6 +18,16 @@ function invalid(error: { flatten: () => { fieldErrors: Record<string, string[]>
   return { success: false, errorCode: "VALIDATION_ERROR", fieldErrors: error.flatten().fieldErrors as FieldErrors };
 }
 
+function signupErrorCode(error: { message?: string | undefined; code?: string | undefined; status?: number | undefined }): string {
+  const message = error.message ?? "";
+  const code = error.code ?? "";
+  if (message.includes("INVITE_INVALID_OR_UNAVAILABLE")) return "INVITE_INVALID_OR_UNAVAILABLE";
+  if (code === "user_already_exists" || message.toLowerCase().includes("already registered")) return "AUTH_EMAIL_ALREADY_REGISTERED";
+  if (code.includes("hook") || message.toLowerCase().includes("hook")) return "AUTH_HOOK_FAILED";
+  if (error.status === 500) return "AUTH_HOOK_FAILED";
+  return "UNKNOWN";
+}
+
 export async function loginAction(_state: AuthResult, formData: FormData): Promise<AuthResult> {
   const parsed = loginSchema.safeParse(fields(formData));
   if (!parsed.success) return invalid(parsed.error);
@@ -50,7 +60,10 @@ export async function signupAction(_state: AuthResult, formData: FormData): Prom
         emailRedirectTo: `${environment.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/shopping`,
       },
     });
-    if (error) return { success: false, errorCode: error.message.includes("INVITE_INVALID_OR_UNAVAILABLE") ? "INVITE_INVALID_OR_UNAVAILABLE" : "UNKNOWN" };
+    if (error) {
+      console.error("Signup failed", { status: error.status, code: error.code, message: error.message });
+      return { success: false, errorCode: signupErrorCode(error) };
+    }
     return { success: true, data: { message: "CHECK_EMAIL" } };
   } catch (error) {
     return { success: false, errorCode: toErrorCode(error) };

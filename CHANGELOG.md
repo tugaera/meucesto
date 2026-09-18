@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.2] - 2026-09-18
+
+### Fixed
+- Improved hosted signup diagnostics by mapping duplicate-email and Supabase Auth hook failures to explicit translated errors and logging server-side Supabase signup details.
+
 ## [1.0.1] - 2026-09-18
 
 ### Added
