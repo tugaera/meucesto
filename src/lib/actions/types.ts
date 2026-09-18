@@ -8,3 +8,14 @@ export const initialActionResult: ActionResult<never> = {
   success: false,
   errorCode: "IDLE",
 };
+
+export const initialCartMutationResult = initialActionResult;
+export const initialJoinResult = initialActionResult;
+export const initialProfileActionResult = initialActionResult;
+export const initialProductMutationResult = initialActionResult;
+export const initialListMutationResult = initialActionResult;
+export const initialAiReceiptResult = initialActionResult;
+export const initialAiReviewDecisionResult = initialActionResult;
+export const initialReceiptMutationResult = initialActionResult;
+export const initialSignedReceiptResult = initialActionResult;
+export const initialAdminActionResult = initialActionResult;

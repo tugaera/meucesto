@@ -1,5 +1,6 @@
 "use client";
 
+import { initialCartMutationResult } from "@/lib/actions/types";
 import { Check, ListChecks, Unlink, X } from "lucide-react";
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -8,7 +9,7 @@ import { Select } from "@/components/ui/field";
 import { useT } from "@/i18n/provider";
 import { createClient } from "@/lib/supabase/client";
 import type { CartItem, ListDirectoryItem } from "@/types/domain";
-import { attachTrackingListAction, initialCartMutationResult } from "./actions";
+import { attachTrackingListAction } from "./actions";
 import { MutationFeedback } from "./mutation-feedback";
 import { buildTrackingMatches, type AmbiguousTrackingMatch } from "./tracking-matching";
 

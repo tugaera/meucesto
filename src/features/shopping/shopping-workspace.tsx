@@ -1,5 +1,6 @@
 "use client";
 
+import { initialCartMutationResult } from "@/lib/actions/types";
 import { Link2, ShoppingBasket } from "lucide-react";
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,7 @@ import { SharePanel } from "./share-panel";
 import { SharedCarts } from "./shared-carts";
 import { StoreSelector } from "./store-selector";
 import { TrackingPanel } from "./tracking-panel";
-import { attachTrackingListAction, initialCartMutationResult, leaveSharedCartAction } from "./actions";
+import { attachTrackingListAction, leaveSharedCartAction } from "./actions";
 import { MutationFeedback } from "./mutation-feedback";
 
 function TrackingListConfirmation({ cartId, revision, listId, name }: { cartId: string; revision: number; listId: string; name: string }) {

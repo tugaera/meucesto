@@ -1,5 +1,6 @@
 "use client";
 
+import { initialJoinResult } from "@/lib/actions/types";
 import { ArrowLeft, Link2 } from "lucide-react";
 import Link from "next/link";
 import { useActionState, useState } from "react";
@@ -7,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Surface } from "@/components/ui/surface";
 import { dictionaries, type TranslationKey } from "@/i18n";
 import { useT } from "@/i18n/provider";
-import { initialJoinResult, joinCartAction, joinListAction } from "./actions";
+import { joinCartAction, joinListAction } from "./actions";
 
 export function JoinPanel({ type, token, valid, ownerEmail, resourceName }: { type: "cart" | "list"; token: string; valid: boolean; ownerEmail?: string | undefined; resourceName?: string | undefined }) {
   const { t } = useT();

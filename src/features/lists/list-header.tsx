@@ -1,5 +1,6 @@
 "use client";
 
+import { initialListMutationResult } from "@/lib/actions/types";
 import Link from "next/link";
 import { ArrowLeft, ShoppingBasket, Trash2, UserMinus } from "lucide-react";
 import { useActionState, useState } from "react";
@@ -9,7 +10,7 @@ import { Input } from "@/components/ui/field";
 import { useT } from "@/i18n/provider";
 import { cn } from "@/lib/utils";
 import type { ListDetail } from "@/types/domain";
-import { deleteListAction, initialListMutationResult, leaveListAction, renameListAction } from "./actions";
+import { deleteListAction, leaveListAction, renameListAction } from "./actions";
 import { ListMutationFeedback } from "./mutation-feedback";
 
 export function ListHeader({ list }: { list: ListDetail }) {

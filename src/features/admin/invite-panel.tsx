@@ -1,5 +1,6 @@
 "use client";
 
+import { initialAdminActionResult } from "@/lib/actions/types";
 import { Ban, MailPlus, TicketCheck } from "lucide-react";
 import { useActionState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +9,7 @@ import { Field, Input, Select } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { useT } from "@/i18n/provider";
 import { useMutationId } from "@/lib/actions/use-mutation-id";
-import { createInviteAction, initialAdminActionResult, revokeInviteAction } from "./actions";
+import { createInviteAction, revokeInviteAction } from "./actions";
 import { AdminFeedback } from "./admin-feedback";
 import { CopyButton } from "./copy-button";
 import type { AdminCursor, AdminInvite } from "./data";

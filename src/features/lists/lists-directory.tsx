@@ -1,5 +1,6 @@
 "use client";
 
+import { initialListMutationResult } from "@/lib/actions/types";
 import Link from "next/link";
 import { ArrowRight, ListChecks, Plus, Users } from "lucide-react";
 import { useActionState } from "react";
@@ -10,7 +11,7 @@ import { EmptyState, PageHeading, Surface } from "@/components/ui/surface";
 import { useT } from "@/i18n/provider";
 import { useMutationId } from "@/lib/actions/use-mutation-id";
 import type { ListDirectoryItem } from "@/types/domain";
-import { createListAction, initialListMutationResult } from "./actions";
+import { createListAction } from "./actions";
 import { ListMutationFeedback } from "./mutation-feedback";
 
 export function ListsDirectory({ lists }: { lists: ListDirectoryItem[] }) {

@@ -15,8 +15,6 @@ import { historyCartDetailSchema, historyCartItemsSchema, receiptMetadataListSch
 
 export type AiReceiptResult = ActionResult<{ review: ReceiptReview }>;
 export type AiReviewDecisionResult = ActionResult<{ message: "AI_REVIEW_RECORDED"; accepted: number; rejected: number }>;
-export const initialAiReceiptResult: AiReceiptResult = { success: false, errorCode: "IDLE" };
-export const initialAiReviewDecisionResult: AiReviewDecisionResult = { success: false, errorCode: "IDLE" };
 
 export async function extractReceiptAction(_state: AiReceiptResult, formData: FormData): Promise<AiReceiptResult> {
   const parsed = z.object({ cartId: z.uuid(), receiptId: z.uuid(), consent: z.literal("on") }).safeParse(Object.fromEntries(formData.entries()));

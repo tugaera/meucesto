@@ -19,8 +19,6 @@ interface SignedReceipt {
 
 export type ReceiptMutationResult = ActionResult<{ message: string }>;
 export type SignedReceiptResult = ActionResult<{ receipts: SignedReceipt[] }>;
-export const initialReceiptMutationResult: ReceiptMutationResult = { success: false, errorCode: "IDLE" };
-export const initialSignedReceiptResult: SignedReceiptResult = { success: false, errorCode: "IDLE" };
 
 const cartIdSchema = z.object({ cartId: z.uuid() });
 const cartMutationSchema = cartIdSchema.extend({ mutationId: z.uuid() });

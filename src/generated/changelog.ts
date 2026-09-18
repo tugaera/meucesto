@@ -19,7 +19,8 @@ export const CHANGELOG = [
         "name": "Fixed",
         "entries": [
           "Improved hosted signup diagnostics by mapping duplicate-email and Supabase Auth hook failures to explicit translated errors and logging server-side Supabase signup details.",
-          "Added production-safe diagnostics for protected profile recovery and shopping page RPC failures."
+          "Added production-safe diagnostics for protected profile recovery and shopping page RPC failures.",
+          "Fixed Next.js server action modules so initial client action state is exported from a non-server module."
         ]
       }
     ]

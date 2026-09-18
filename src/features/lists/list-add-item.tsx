@@ -1,5 +1,6 @@
 "use client";
 
+import { initialListMutationResult } from "@/lib/actions/types";
 import { Plus } from "lucide-react";
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,7 @@ import { Field, Input } from "@/components/ui/field";
 import { useT } from "@/i18n/provider";
 import type { ProductSummary } from "@/types/domain";
 import { ProductTypeahead } from "@/features/shopping/product-typeahead";
-import { addListItemAction, initialListMutationResult } from "./actions";
+import { addListItemAction } from "./actions";
 import { ListMutationFeedback } from "./mutation-feedback";
 
 export function ListAddItem({ listId, revision }: { listId: string; revision: number }) {

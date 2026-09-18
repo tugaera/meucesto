@@ -7,7 +7,6 @@ import { toErrorCode } from "@/lib/errors";
 import { createClient } from "@/lib/supabase/server";
 
 export type JoinResult = ActionResult<{ joined: true }>;
-export const initialJoinResult: JoinResult = { success: false, errorCode: "IDLE" };
 const schema = z.object({ token: z.string().min(40).max(100), mutationId: z.uuid().optional() });
 
 export async function joinCartAction(_state: JoinResult, formData: FormData): Promise<JoinResult> {

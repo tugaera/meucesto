@@ -1,11 +1,12 @@
 "use client";
 
+import { initialCartMutationResult } from "@/lib/actions/types";
 import { Store } from "lucide-react";
 import { useActionState, useRef, useState } from "react";
 import { useT } from "@/i18n/provider";
 import { Select } from "@/components/ui/field";
 import type { ReferenceData } from "@/types/domain";
-import { initialCartMutationResult, setCartStoreAction } from "./actions";
+import { setCartStoreAction } from "./actions";
 import { MutationFeedback } from "./mutation-feedback";
 
 export function StoreSelector({ cartId, revision, selectedStoreId, stores, disabled }: { cartId: string; revision: number; selectedStoreId: string | null; stores: ReferenceData["stores"]; disabled: boolean }) {

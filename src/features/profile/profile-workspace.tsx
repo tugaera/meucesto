@@ -1,5 +1,6 @@
 "use client";
 
+import { initialProfileActionResult } from "@/lib/actions/types";
 import { Download, KeyRound, Languages, ShieldAlert, UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState } from "react";
@@ -12,7 +13,7 @@ import { useT } from "@/i18n/provider";
 import { useMutationId } from "@/lib/actions/use-mutation-id";
 import type { AppProfile } from "@/lib/auth/guards";
 import { clearAllOfflineData } from "@/lib/offline/db";
-import { changePasswordAction, deleteAccountAction, initialProfileActionResult, updatePreferencesAction, type ProfileActionResult } from "./actions";
+import { changePasswordAction, deleteAccountAction, updatePreferencesAction, type ProfileActionResult } from "./actions";
 
 function Feedback({ result }: { result: ProfileActionResult }) {
   const { t } = useT();

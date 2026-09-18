@@ -1,5 +1,6 @@
 "use client";
 
+import { initialListMutationResult } from "@/lib/actions/types";
 import { Copy, Link2, Share2, UserMinus } from "lucide-react";
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import { useT } from "@/i18n/provider";
 import { useMutationId } from "@/lib/actions/use-mutation-id";
 import { getPublicEnvironment } from "@/lib/env/public";
 import type { ListMember } from "./data";
-import { initialListMutationResult, revokeListShareAction, rotateListTokenAction, shareListAction } from "./actions";
+import { revokeListShareAction, rotateListTokenAction, shareListAction } from "./actions";
 import { ListMutationFeedback } from "./mutation-feedback";
 
 function ListMemberRow({ listId, member }: { listId: string; member: ListMember }) {

@@ -11,7 +11,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { Json } from "@/types/database";
 
 export type AdminActionResult = ActionResult<{ message: string; data?: Json; invite?: { id: string; code: string; link: string; email: string | null; deliveryError: string | null } }>;
-export const initialAdminActionResult: AdminActionResult = { success: false, errorCode: "IDLE" };
+const initialAdminActionResult: AdminActionResult = { success: false, errorCode: "IDLE" };
 const fields = (formData: FormData) => Object.fromEntries(formData.entries());
 const invalid = (error: z.ZodError): AdminActionResult => ({ success: false, errorCode: "VALIDATION_ERROR", fieldErrors: error.flatten().fieldErrors as FieldErrors });
 const failed = (error: unknown): AdminActionResult => ({ success: false, errorCode: toErrorCode(error) });
