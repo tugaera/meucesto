@@ -1,0 +1,2 @@
+-- Canonical production-safe reference rows are seeded by schema.sql.
+-- Deterministic test users and fixtures belong in supabase/tests, never here.

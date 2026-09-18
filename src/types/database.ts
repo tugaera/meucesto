@@ -1,0 +1,135 @@
+// Generated contract snapshot for the canonical schema. Regenerate with `pnpm types:database` against local Supabase.
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
+
+type TableShape = {
+  Row: Record<string, Json>;
+  Insert: Record<string, Json | undefined>;
+  Update: Record<string, Json | undefined>;
+  Relationships: [];
+};
+
+type Rpc<Args extends Record<string, unknown> = Record<string, never>, Returns = Json> = {
+  Args: Args;
+  Returns: Returns;
+};
+
+export type Database = {
+  public: {
+    Tables: {
+      profiles: TableShape;
+      invites: TableShape;
+      stores: TableShape;
+      categories: TableShape;
+      brands: TableShape;
+      units: TableShape;
+      products: TableShape;
+      product_entries: TableShape;
+      shopping_lists: TableShape;
+      shopping_list_items: TableShape;
+      shopping_carts: TableShape;
+      shopping_cart_items: TableShape;
+      cart_shares: TableShape;
+      list_shares: TableShape;
+      resource_join_invites: TableShape;
+      cart_receipt_images: TableShape;
+      mutation_receipts: TableShape;
+      request_rate_limits: TableShape;
+      ai_usage_daily: TableShape;
+      ai_provider_requests: TableShape;
+      audit_log: TableShape;
+      retention_queue: TableShape;
+    };
+    Views: {
+      latest_product_prices: TableShape;
+    };
+    Functions: {
+      get_my_profile: Rpc;
+      get_my_role: Rpc<Record<string, never>, Database["public"]["Enums"]["app_role"]>;
+      update_my_preferences: Rpc<{ language: Database["public"]["Enums"]["locale_code"]; timezone: string; mutation_id: string }>;
+      ensure_my_profile: Rpc;
+      admin_update_user_role: Rpc<{ user_id: string; role: Database["public"]["Enums"]["app_role"]; mutation_id: string }>;
+      admin_list_users: Rpc<{ cursor_created_at?: string; cursor_id?: string; page_size?: number }>;
+      create_invite: Rpc<{ email: string; assigned_role: Database["public"]["Enums"]["app_role"]; expires_at: string; mutation_id: string }>;
+      revoke_invite: Rpc<{ invite_id: string; mutation_id: string }>;
+      list_invites: Rpc<{ cursor_created_at?: string; cursor_id?: string; page_size?: number }>;
+      get_sanitized_audit_page: Rpc<{ cursor_created_at?: string; cursor_id?: string; page_size?: number }>;
+      get_or_create_active_cart: Rpc<{ mutation_id: string }>;
+      get_cart_by_id: Rpc<{ cart_id: string }>;
+      get_cart_items: Rpc<{ cart_id: string }>;
+      set_cart_store: Rpc<{ cart_id: string; store_id: string | null; expected_revision: number; mutation_id: string }>;
+      add_or_merge_cart_item: Rpc<{ cart_id: string; item: Json; expected_revision: number; mutation_id: string }>;
+      update_cart_item: Rpc<{ cart_id: string; item_id: string; updates: Json; expected_item_revision: number; mutation_id: string }>;
+      delete_cart_item: Rpc<{ cart_id: string; item_id: string; expected_item_revision: number; mutation_id: string }>;
+      attach_tracking_list: Rpc<{ cart_id: string; list_id: string | null; expected_revision: number; mutation_id: string }>;
+      get_tracking_state: Rpc<{ cart_id: string }>;
+      update_tracking_state: Rpc<{ cart_id: string; state: Json; expected_revision: number; mutation_id: string }>;
+      get_shared_active_carts: Rpc;
+      share_cart_with_email: Rpc<{ cart_id: string; email: string; mutation_id: string }>;
+      get_cart_members: Rpc<{ cart_id: string }>;
+      revoke_cart_share: Rpc<{ cart_id: string; member_user_id: string; mutation_id: string }>;
+      leave_shared_cart: Rpc<{ cart_id: string; mutation_id: string }>;
+      create_or_rotate_cart_join_token: Rpc<{ cart_id: string; expires_at: string; max_uses: number | null; mutation_id: string }>;
+      revoke_cart_join_token: Rpc<{ cart_id: string; mutation_id: string }>;
+      preview_cart_join_token: Rpc<{ token: string }>;
+      join_cart_by_token: Rpc<{ token: string; mutation_id: string }>;
+      finalize_cart: Rpc<{ cart_id: string; idempotency_key: string; mutation_id: string }>;
+      delete_active_cart: Rpc<{ cart_id: string; mutation_id: string }>;
+      get_lists_directory: Rpc<{ cursor_updated_at?: string; cursor_id?: string; page_size?: number }>;
+      create_list: Rpc<{ name: string; mutation_id: string }>;
+      rename_list: Rpc<{ list_id: string; name: string; expected_revision: number; mutation_id: string }>;
+      delete_list: Rpc<{ list_id: string; mutation_id: string }>;
+      get_list_by_id: Rpc<{ list_id: string }>;
+      get_list_items: Rpc<{ list_id: string }>;
+      add_or_merge_list_item: Rpc<{ list_id: string; item: Json; expected_revision: number; mutation_id: string }>;
+      update_list_item: Rpc<{ list_id: string; item_id: string; updates: Json; expected_item_revision: number; mutation_id: string }>;
+      delete_list_item: Rpc<{ list_id: string; item_id: string; expected_item_revision: number; mutation_id: string }>;
+      share_list_with_email: Rpc<{ list_id: string; email: string; mutation_id: string }>;
+      get_list_members: Rpc<{ list_id: string }>;
+      revoke_list_share: Rpc<{ list_id: string; member_user_id: string; mutation_id: string }>;
+      leave_shared_list: Rpc<{ list_id: string; mutation_id: string }>;
+      create_or_rotate_list_join_token: Rpc<{ list_id: string; expires_at: string; max_uses: number | null; mutation_id: string }>;
+      revoke_list_join_token: Rpc<{ list_id: string; mutation_id: string }>;
+      preview_list_join_token: Rpc<{ token: string }>;
+      join_list_by_token: Rpc<{ token: string; mutation_id: string }>;
+      get_history_page: Rpc<{ cursor_finalized_at?: string; cursor_id?: string; page_size?: number }>;
+      get_history_cart_detail: Rpc<{ cart_id: string }>;
+      get_history_cart_items: Rpc<{ cart_id: string }>;
+      get_history_cart_receipts: Rpc<{ cart_id: string }>;
+      create_receipt_metadata: Rpc<{ cart_id: string; metadata: Json; mutation_id: string }>;
+      reorder_receipts: Rpc<{ cart_id: string; ordered_ids: string[]; mutation_id: string }>;
+      delete_receipt: Rpc<{ cart_id: string; receipt_id: string; mutation_id: string }>;
+      get_catalog_reference_data: Rpc;
+      search_products: Rpc<{ search_text?: string; barcode?: string; cursor_name?: string; cursor_id?: string; page_size?: number; include_inactive?: boolean }>;
+      get_product_detail: Rpc<{ product_id: string }>;
+      get_product_price_history: Rpc<{ product_id: string; cursor_created_at?: string; cursor_id?: string; page_size?: number }>;
+      get_or_create_unverified_brand: Rpc<{ name: string; mutation_id: string }>;
+      create_product: Rpc<{ product: Json; mutation_id: string }>;
+      catalog_save_store: Rpc<{ store_id: string | null; name: string; is_active: boolean; sort_order: number | null; mutation_id: string }>;
+      catalog_save_category: Rpc<{ category_id: string | null; name: string; parent_id: string | null; is_active: boolean; sort_order: number | null; mutation_id: string }>;
+      catalog_save_brand: Rpc<{ brand_id: string | null; name: string; is_active: boolean; is_verified: boolean; mutation_id: string }>;
+      catalog_save_unit: Rpc<{ unit_id: string | null; name: string; abbreviation: string; is_active: boolean; make_default: boolean; replacement_default_id: string | null; mutation_id: string }>;
+      catalog_save_product: Rpc<{ product_id: string; product: Json; mutation_id: string }>;
+      catalog_save_price_entry: Rpc<{ entry_id: string | null; entry: Json; mutation_id: string }>;
+      catalog_delete_price_entry: Rpc<{ entry_id: string; mutation_id: string }>;
+      admin_delete_catalog_entity: Rpc<{ entity_type: string; entity_id: string; mutation_id: string }>;
+      consume_ai_daily_quota: Rpc<{ daily_limit: number }>;
+      record_ai_provider_request: Rpc<{ request_id: string; provider: string; status: string; provider_request_id?: string; error_code?: string }>;
+      record_ai_receipt_review: Rpc<{ cart_id: string; receipt_id: string; review_request_id: string; decisions: Json; mutation_id: string }>;
+      get_my_data_export: Rpc;
+      prepare_account_deletion: Rpc<{ mutation_id: string }>;
+      validate_invite_code: Rpc<{ code: string; email: string }>;
+      consume_rate_limit: Rpc<{ action_name: string; hashed_key: string; max_attempts: number; window_seconds: number; block_seconds: number }>;
+      schedule_deleted_account_receipt_purge: Rpc<{ deleted_user_id: string; receipt_object_paths: string[]; retention_days?: number }, string>;
+      get_due_retention_jobs: Rpc<{ page_size?: number }>;
+      complete_retention_job: Rpc<{ job_id: string; succeeded: boolean; error_code?: string }>;
+      get_audit_retention_batch: Rpc<{ cutoff: string; page_size?: number }>;
+      purge_operational_data: Rpc<{ invite_retention_days?: number; audit_retention_months?: number; delete_due_audit?: boolean }>;
+      bootstrap_first_admin: Rpc<{ target_user_id: string; allow_break_glass?: boolean }>;
+    };
+    Enums: {
+      app_role: "admin" | "moderator" | "user";
+      locale_code: "pt" | "en";
+    };
+    CompositeTypes: Record<never, never>;
+  };
+};

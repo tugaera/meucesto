@@ -1,0 +1,189 @@
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+import semver from "semver";
+
+export const CHANGE_CATEGORIES = [
+  "Added",
+  "Changed",
+  "Fixed",
+  "Security",
+  "Deprecated",
+  "Removed",
+] as const;
+
+export type ChangeCategory = (typeof CHANGE_CATEGORIES)[number];
+
+export interface ChangelogCategory {
+  readonly name: ChangeCategory;
+  readonly entries: readonly string[];
+}
+
+export interface ChangelogRelease {
+  readonly version: string;
+  readonly date: string;
+  readonly categories: readonly ChangelogCategory[];
+  readonly raw: string;
+}
+
+export interface ParsedChangelog {
+  readonly releases: readonly ChangelogRelease[];
+  readonly hasUnreleased: boolean;
+}
+
+const RELEASE_HEADING = /^## \[(\d+\.\d+\.\d+)\] - (\d{4}-\d{2}-\d{2})$/;
+const CATEGORY_HEADING = /^### ([A-Za-z]+)$/;
+const ENTRY_LINE = /^- (\S.*)$/;
+
+function isChangeCategory(value: string): value is ChangeCategory {
+  return CHANGE_CATEGORIES.some((category) => category === value);
+}
+
+function assertIsoDate(value: string): void {
+  const parsed = new Date(`${value}T00:00:00.000Z`);
+  if (Number.isNaN(parsed.valueOf()) || parsed.toISOString().slice(0, 10) !== value) {
+    throw new Error(`Invalid changelog release date: ${value}`);
+  }
+}
+
+function parseRelease(lines: readonly string[], start: number, end: number): ChangelogRelease {
+  const heading = lines[start];
+  const match = heading?.match(RELEASE_HEADING);
+  if (!match) {
+    throw new Error(`Malformed release heading on line ${start + 1}`);
+  }
+
+  const version = match[1];
+  const date = match[2];
+  if (!version || !date || !semver.valid(version)) {
+    throw new Error(`Invalid semantic version on line ${start + 1}`);
+  }
+  assertIsoDate(date);
+
+  const categories: ChangelogCategory[] = [];
+  let activeCategory: { name: ChangeCategory; entries: string[] } | undefined;
+
+  for (let index = start + 1; index < end; index += 1) {
+    const line = lines[index]?.trim() ?? "";
+    if (line.length === 0) {
+      continue;
+    }
+
+    const categoryMatch = line.match(CATEGORY_HEADING);
+    if (categoryMatch) {
+      const name = categoryMatch[1];
+      if (!name || !isChangeCategory(name)) {
+        throw new Error(`Unsupported changelog category on line ${index + 1}: ${name ?? ""}`);
+      }
+      if (activeCategory?.entries.length === 0) {
+        throw new Error(`Empty changelog category: ${activeCategory.name}`);
+      }
+      if (categories.some((category) => category.name === name)) {
+        throw new Error(`Duplicate changelog category in ${version}: ${name}`);
+      }
+      activeCategory = { name, entries: [] };
+      categories.push(activeCategory);
+      continue;
+    }
+
+    const entryMatch = line.match(ENTRY_LINE);
+    if (entryMatch && activeCategory) {
+      const entry = entryMatch[1];
+      if (!entry) {
+        throw new Error(`Empty changelog entry on line ${index + 1}`);
+      }
+      activeCategory.entries.push(entry);
+      continue;
+    }
+
+    throw new Error(`Unexpected changelog content on line ${index + 1}: ${line}`);
+  }
+
+  if (categories.length === 0 || activeCategory?.entries.length === 0) {
+    throw new Error(`Release ${version} must contain nonempty categories`);
+  }
+
+  return {
+    version,
+    date,
+    categories,
+    raw: lines.slice(start, end).join("\n").trim(),
+  };
+}
+
+export function parseChangelog(markdown: string): ParsedChangelog {
+  const normalized = markdown.replaceAll("\r\n", "\n").trimEnd();
+  const lines = normalized.split("\n");
+  if (lines[0]?.trim() !== "# Changelog") {
+    throw new Error("CHANGELOG.md must start with '# Changelog'");
+  }
+
+  const releaseStarts: number[] = [];
+  let hasUnreleased = false;
+  for (let index = 1; index < lines.length; index += 1) {
+    const line = lines[index]?.trim() ?? "";
+    if (line === "## [Unreleased]") {
+      hasUnreleased = true;
+    } else if (line.startsWith("## [")) {
+      if (!RELEASE_HEADING.test(line)) {
+        throw new Error(`Malformed release heading on line ${index + 1}: ${line}`);
+      }
+      releaseStarts.push(index);
+    }
+  }
+
+  if (releaseStarts.length === 0) {
+    throw new Error("CHANGELOG.md must contain at least one released version");
+  }
+
+  const releases = releaseStarts.map((start, releaseIndex) => {
+    const nextStart = releaseStarts[releaseIndex + 1] ?? lines.length;
+    return parseRelease(lines, start, nextStart);
+  });
+
+  const seen = new Set<string>();
+  releases.forEach((release, index) => {
+    if (seen.has(release.version)) {
+      throw new Error(`Duplicate changelog version: ${release.version}`);
+    }
+    seen.add(release.version);
+    const previous = releases[index + 1];
+    if (previous && !semver.gt(release.version, previous.version)) {
+      throw new Error(`Changelog versions must be newest first: ${release.version} is not greater than ${previous.version}`);
+    }
+  });
+
+  return { releases, hasUnreleased };
+}
+
+export function renderAppVersion(release: ChangelogRelease): string {
+  return [
+    "// Generated by scripts/sync-app-version.ts. Do not edit.",
+    `export const APP_VERSION = '${release.version}' as const;`,
+    `export const APP_RELEASE_DATE = '${release.date}' as const;`,
+    "",
+  ].join("\n");
+}
+
+export function renderStructuredChangelog(releases: readonly ChangelogRelease[]): string {
+  const serializable = releases.map(({ version, date, categories }) => ({ version, date, categories }));
+  return [
+    "// Generated by scripts/sync-app-version.ts. Do not edit.",
+    "export interface GeneratedChangelogCategory {",
+    "  readonly name: 'Added' | 'Changed' | 'Fixed' | 'Security' | 'Deprecated' | 'Removed';",
+    "  readonly entries: readonly string[];",
+    "}",
+    "",
+    "export interface GeneratedChangelogRelease {",
+    "  readonly version: string;",
+    "  readonly date: string;",
+    "  readonly categories: readonly GeneratedChangelogCategory[];",
+    "}",
+    "",
+    `export const CHANGELOG = ${JSON.stringify(serializable, null, 2)} as const satisfies readonly GeneratedChangelogRelease[];`,
+    "",
+  ].join("\n");
+}
+
+export function readRootChangelog(root = process.cwd()): ParsedChangelog {
+  return parseChangelog(readFileSync(resolve(root, "CHANGELOG.md"), "utf8"));
+}
