@@ -26,6 +26,17 @@ export interface AdminData {
   nextAuditCursor: AdminCursor | null;
 }
 
+function logRpcError(name: string, error: { message: string; code?: string; details?: string; hint?: string }): string {
+  const errorCode = toErrorCode(error);
+  console.error("Admin RPC failed", { name, errorCode, code: error.code, message: error.message, details: error.details, hint: error.hint });
+  return errorCode;
+}
+
+function logInvalidData(name: string, result: { success: true } | { success: false; error: z.ZodError }): void {
+  if (result.success) return;
+  console.error("Admin RPC returned invalid data", { name, issues: result.error.issues.map((issue) => ({ path: issue.path.join("."), code: issue.code, message: issue.message })) });
+}
+
 export async function loadAdminData(cursors: { users?: AdminCursor; invites?: AdminCursor; audit?: AdminCursor } = {}): Promise<AdminData> {
   const profile = await requireAdminOrModerator();
   const supabase = await createClient();
@@ -35,12 +46,21 @@ export async function loadAdminData(cursors: { users?: AdminCursor; invites?: Ad
     supabase.rpc("get_catalog_reference_data"),
     profile.role === "admin" ? supabase.rpc("get_sanitized_audit_page", { ...(cursors.audit ? { cursor_created_at: cursors.audit.createdAt, cursor_id: cursors.audit.id } : {}), page_size: 21 }) : Promise.resolve({ data: [], error: null }),
   ]);
-  const firstError = requests.find((result) => result.error)?.error;
-  if (firstError) throw new Error(toErrorCode(firstError));
+  const requestNames = ["admin_list_users", "list_invites", "get_catalog_reference_data", "get_sanitized_audit_page"] as const;
+  const firstErrorIndex = requests.findIndex((result) => result.error);
+  if (firstErrorIndex >= 0) {
+    const failedRequest = requests[firstErrorIndex];
+    const requestName = requestNames[firstErrorIndex] ?? "unknown_admin_rpc";
+    if (failedRequest?.error) throw new Error(logRpcError(requestName, failedRequest.error));
+  }
   const users = z.array(userSchema).safeParse(requests[0].data);
   const invites = z.array(inviteSchema).safeParse(requests[1].data);
   const references = referenceDataSchema.safeParse(requests[2].data);
   const audit = z.array(auditSchema).safeParse(requests[3].data);
+  logInvalidData("admin_list_users", users);
+  logInvalidData("list_invites", invites);
+  logInvalidData("get_catalog_reference_data", references);
+  logInvalidData("get_sanitized_audit_page", audit);
   if (!users.success || !invites.success || !references.success || !audit.success) throw new Error("INVALID_SERVER_RESPONSE");
   const usersVisible = users.data.slice(0, 20);
   const invitesVisible = invites.data.slice(0, 20);

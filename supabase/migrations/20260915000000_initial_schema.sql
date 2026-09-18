@@ -2801,7 +2801,7 @@ begin
     ) latest on true
     where (not include_inactive and p.is_active or include_inactive and elevated)
       and (normalized_code is null or p.barcode = normalized_code)
-      and (normalized_query is null or public.normalize_name(p.name) % normalized_query or public.normalize_name(p.name) like '%' || normalized_query || '%' or normalized_query = any(p.tags))
+      and (normalized_query is null or public.normalize_name(p.name) OPERATOR(extensions.%) normalized_query or public.normalize_name(p.name) like '%' || normalized_query || '%' or normalized_query = any(p.tags))
       and (cursor_name is null or (public.normalize_name(p.name), p.id) > (cursor_name, cursor_id))
     order by public.normalize_name(p.name), p.id
     limit page_size
@@ -3227,7 +3227,7 @@ begin
     select i.id, i.created_at, jsonb_build_object(
       'id', i.id, 'email', i.email::text, 'assignedRole', i.assigned_role,
       'createdAt', i.created_at, 'expiresAt', i.expires_at, 'usedAt', i.used_at,
-      'revokedAt', i.revoked_at, 'createdByMe', i.created_by = caller_id
+      'revokedAt', i.revoked_at, 'createdByMe', coalesce(i.created_by = caller_id, false)
     ) row_data
     from public.invites i
     where (caller_role = 'admin' or i.created_by = caller_id)
