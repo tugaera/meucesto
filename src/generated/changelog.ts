@@ -12,6 +12,18 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.3",
+    "date": "2026-09-19",
+    "categories": [
+      {
+        "name": "Added",
+        "entries": [
+          "Added an idempotent reference data import script for common Portuguese supermarket stores, grocery categories and subcategories, and common supermarket brands."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.2",
     "date": "2026-09-18",
     "categories": [

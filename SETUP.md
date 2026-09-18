@@ -221,7 +221,25 @@ RECEIPT_ORPHAN_GRACE_HOURS
 
 Good options are GitHub Actions with encrypted secrets, a small private server cron, or a Supabase Edge Function/cron wrapper. Vercel Cron cannot run this CLI directly unless you first add a protected API route that invokes the same retention logic.
 
-## 9. Smoke Test Production
+## 9. Import Reference Data
+
+After the schema is applied and the server environment values are available locally, import the starter supermarket stores, brands, and categories:
+
+```powershell
+$env:COREPACK_HOME="$PWD\.corepack"
+corepack pnpm reference:import
+```
+
+The script loads `.env` and then `.env.local` when present. It requires:
+
+```text
+NEXT_PUBLIC_SUPABASE_URL
+SUPABASE_SECRET_KEY
+```
+
+It is safe to run more than once. Store and brand rows are upserted by name, and category rows are created only when the same name does not already exist under the same parent.
+
+## 10. Smoke Test Production
 
 After deployment:
 
@@ -236,7 +254,7 @@ After deployment:
 - Confirm offline queue behavior by adding an item offline, reconnecting, and checking sync.
 - Confirm the admin dashboard works for the bootstrapped admin only.
 
-## 10. Release Checklist
+## 11. Release Checklist
 
 Before treating the deployment as production-ready:
 
@@ -247,6 +265,7 @@ Before treating the deployment as production-ready:
 - Vercel production env vars are complete.
 - `RATE_LIMIT_HASH_SECRET` is unique and strong.
 - AI keys and models are configured together, or both left empty.
+- Starter reference data has been imported.
 - Retention scheduler is active.
 - First admin has been bootstrapped.
 - A real production smoke test has passed.

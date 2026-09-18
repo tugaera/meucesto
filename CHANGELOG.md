@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.3] - 2026-09-19
+
+### Added
+- Added an idempotent reference data import script for common Portuguese supermarket stores, grocery categories and subcategories, and common supermarket brands.
+
 ## [1.0.2] - 2026-09-18
 
 ### Fixed
