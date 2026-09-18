@@ -9,6 +9,7 @@ export default async function ShoppingPage({ searchParams }: { searchParams: Pro
     data = await loadShoppingData(cart, list);
   } catch (error) {
     if ((cart || list) && error instanceof Error && ["NOT_AUTHORIZED", "RESOURCE_NOT_FOUND"].includes(error.message)) notFound();
+    console.error("Shopping page failed to load", { errorCode: error instanceof Error ? error.message : "UNKNOWN" });
     throw error;
   }
   return <ShoppingWorkspace data={data} />;
