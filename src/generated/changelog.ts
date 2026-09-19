@@ -12,6 +12,60 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.6",
+    "date": "2026-09-19",
+    "categories": [
+      {
+        "name": "Added",
+        "entries": [
+          "Added in-scanner settings for fast or precise barcode reading, browser-native detection, and high-resolution camera capture, with preferences saved per browser."
+        ]
+      },
+      {
+        "name": "Fixed",
+        "entries": [
+          "Improved real-package barcode recognition by running supported browser-native barcode detection alongside the ZXing fallback in precise mode."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "1.0.5",
+    "date": "2026-09-19",
+    "categories": [
+      {
+        "name": "Fixed",
+        "entries": [
+          "Fixed camera scanning on desktop and Android by avoiding ZXing's broken `TRY_HARDER` canvas rotation path while retaining focused high-resolution EAN and UPC recognition."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "1.0.4",
+    "date": "2026-09-19",
+    "categories": [
+      {
+        "name": "Fixed",
+        "entries": [
+          "Improved camera barcode recognition with retail format prioritization, harder scanning, higher-resolution rear-camera capture, continuous focus when supported, optional flashlight control, visible scanning guidance, translated camera errors, and reliable stream cleanup."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "1.0.3",
+    "date": "2026-09-19",
+    "categories": [
+      {
+        "name": "Added",
+        "entries": [
+          "Added an idempotent reference data import script for common Portuguese supermarket stores, grocery categories and subcategories, and common supermarket brands."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.2",
     "date": "2026-09-18",
     "categories": [

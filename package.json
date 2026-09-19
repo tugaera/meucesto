@@ -1,6 +1,6 @@
 {
   "name": "meu-cesto",
-  "version": "1.0.2",
+  "version": "1.0.6",
   "private": true,
   "type": "module",
   "description": "Meu Cesto - a collaborative shopping assistant for Portuguese-first families.",
@@ -31,6 +31,7 @@
     "verify:schema": "node --experimental-strip-types scripts/verify-schema-parity.ts",
     "verify:security": "node --experimental-strip-types scripts/verify-source-security.ts",
     "admin:bootstrap": "node --experimental-strip-types scripts/bootstrap-admin.ts",
+    "reference:import": "node --experimental-strip-types scripts/import-reference-data.ts",
     "retention:run": "node --experimental-strip-types scripts/run-retention.ts",
     "verify": "pnpm lint && pnpm typecheck && pnpm test:unit && pnpm version:verify && pnpm verify:schema && pnpm verify:security && pnpm build"
   },
@@ -42,6 +43,7 @@
     "@vercel/analytics": "2.0.1",
     "@vercel/speed-insights": "2.0.0",
     "@zxing/browser": "0.2.1",
+    "@zxing/library": "0.23.0",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "decimal.js": "10.6.0",
