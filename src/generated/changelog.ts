@@ -12,6 +12,24 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.6",
+    "date": "2026-09-19",
+    "categories": [
+      {
+        "name": "Added",
+        "entries": [
+          "Added in-scanner settings for fast or precise barcode reading, browser-native detection, and high-resolution camera capture, with preferences saved per browser."
+        ]
+      },
+      {
+        "name": "Fixed",
+        "entries": [
+          "Improved real-package barcode recognition by running supported browser-native barcode detection alongside the ZXing fallback in precise mode."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.5",
     "date": "2026-09-19",
     "categories": [

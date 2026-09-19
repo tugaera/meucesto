@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.6] - 2026-09-19
+
+### Added
+- Added in-scanner settings for fast or precise barcode reading, browser-native detection, and high-resolution camera capture, with preferences saved per browser.
+
+### Fixed
+- Improved real-package barcode recognition by running supported browser-native barcode detection alongside the ZXing fallback in precise mode.
+
 ## [1.0.5] - 2026-09-19
 
 ### Fixed

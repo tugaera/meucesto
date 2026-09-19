@@ -3,8 +3,12 @@ import { DecodeHintType } from "@zxing/library";
 import { describe, expect, it } from "vitest";
 import {
   classifyScannerStartError,
+  createNativeBarcodeDetector,
   createProductBarcodeHints,
+  DEFAULT_BARCODE_SCANNER_SETTINGS,
+  getProductCameraConstraints,
   isRoutineDecodeMiss,
+  normalizeBarcodeScannerSettings,
   PRODUCT_CAMERA_CONSTRAINTS,
 } from "@/lib/barcode/scanner";
 
@@ -32,6 +36,42 @@ describe("barcode scanner configuration", () => {
         height: { ideal: 720 },
       },
     });
+  });
+
+  it("uses higher ideal resolution in precise mode", () => {
+    expect(getProductCameraConstraints(DEFAULT_BARCODE_SCANNER_SETTINGS)).toMatchObject({
+      video: {
+        width: { ideal: 1920 },
+        height: { ideal: 1080 },
+      },
+    });
+    expect(getProductCameraConstraints({ mode: "fast", nativeDetector: true, highResolution: true })).toEqual(PRODUCT_CAMERA_CONSTRAINTS);
+    expect(getProductCameraConstraints({ mode: "precise", nativeDetector: true, highResolution: false })).toEqual(PRODUCT_CAMERA_CONSTRAINTS);
+  });
+
+  it("normalizes persisted scanner settings", () => {
+    expect(normalizeBarcodeScannerSettings(null)).toEqual(DEFAULT_BARCODE_SCANNER_SETTINGS);
+    expect(normalizeBarcodeScannerSettings({ mode: "fast", nativeDetector: false, highResolution: false })).toEqual({
+      mode: "fast",
+      nativeDetector: false,
+      highResolution: false,
+    });
+    expect(normalizeBarcodeScannerSettings({ mode: "unexpected" })).toEqual(DEFAULT_BARCODE_SCANNER_SETTINGS);
+  });
+
+  it("creates the native detector only when the browser provides it", () => {
+    expect(createNativeBarcodeDetector({} as typeof globalThis)).toBeNull();
+    expect(createNativeBarcodeDetector({
+      BarcodeDetector: class {
+        formats: string[];
+        constructor(options: { formats: string[] }) {
+          this.formats = options.formats;
+        }
+        async detect() {
+          return [];
+        }
+      },
+    } as unknown as typeof globalThis)).not.toBeNull();
   });
 
   it.each([
