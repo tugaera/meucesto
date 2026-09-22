@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import type { ActionResult, FieldErrors } from "@/lib/actions/types";
-import { requireUser } from "@/lib/auth/guards";
 import { toErrorCode } from "@/lib/errors";
 import { parseLocalizedDecimal } from "@/lib/money";
 import { createClient } from "@/lib/supabase/server";
@@ -163,14 +162,11 @@ export async function createProductAndAddAction(_state: CartMutationResult, form
   const originalPrice = parsed.data.originalPrice ? parseLocalizedDecimal(parsed.data.originalPrice, parsed.data.locale, 2) : null;
   const measurement = parsed.data.measurementQuantity ? parseLocalizedDecimal(parsed.data.measurementQuantity, parsed.data.locale, 3) : null;
   if (price === null || quantity === null || (parsed.data.originalPrice && originalPrice === null) || (parsed.data.measurementQuantity && measurement === null)) return { success: false, errorCode: "VALIDATION_ERROR" };
-  const { profile } = await requireUser();
   const supabase = await createClient();
   let brandId = parsed.data.brandId || null;
   if (!brandId && parsed.data.newBrandName) {
-    const brandResult = profile.role === "user"
-      ? await supabase.rpc("get_or_create_unverified_brand", { name: parsed.data.newBrandName, mutation_id: mutationId(parsed.data.brandMutationId) })
-      : await supabase.rpc("catalog_save_brand", { brand_id: null, name: parsed.data.newBrandName, is_active: true, is_verified: true, mutation_id: mutationId(parsed.data.brandMutationId) });
-    if (brandResult.error) return failed(profile.role === "user" ? "get_or_create_unverified_brand" : "catalog_save_brand", brandResult.error);
+    const brandResult = await supabase.rpc("get_or_create_unverified_brand", { name: parsed.data.newBrandName, mutation_id: mutationId(parsed.data.brandMutationId) });
+    if (brandResult.error) return failed("get_or_create_unverified_brand", brandResult.error);
     brandId = typeof brandResult.data === "object" && brandResult.data !== null && "id" in brandResult.data && typeof brandResult.data.id === "string" ? brandResult.data.id : null;
     if (!brandId) return { success: false, errorCode: "UNKNOWN" };
   }
