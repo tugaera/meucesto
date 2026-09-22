@@ -12,6 +12,18 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.20",
+    "date": "2026-09-23",
+    "categories": [
+      {
+        "name": "Added",
+        "entries": [
+          "Added `RECEIPT_ALLOW_LIBRARY_UPLOADS` so deployments can opt into choosing existing receipt images instead of forcing camera capture only."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.19",
     "date": "2026-09-23",
     "categories": [

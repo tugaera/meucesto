@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.20] - 2026-09-23
+
+### Added
+- Added `RECEIPT_ALLOW_LIBRARY_UPLOADS` so deployments can opt into choosing existing receipt images instead of forcing camera capture only.
+
 ## [1.0.19] - 2026-09-23
 
 ### Changed

@@ -1,6 +1,6 @@
 import { ReceiptImportForm } from "@/features/history/receipt-import-form";
-import { hasAiProvider } from "@/lib/env/server";
+import { getServerEnvironment, hasAiProvider } from "@/lib/env/server";
 
 export default function ReceiptImportPage() {
-  return <ReceiptImportForm aiEnabled={hasAiProvider()} />;
+  return <ReceiptImportForm aiEnabled={hasAiProvider()} allowLibraryUploads={getServerEnvironment().RECEIPT_ALLOW_LIBRARY_UPLOADS} />;
 }

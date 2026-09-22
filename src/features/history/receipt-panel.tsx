@@ -56,7 +56,7 @@ function ReceiptReorder({ cartId, orderedIds, direction }: { cartId: string; ord
   );
 }
 
-export function ReceiptPanel({ cartId, receipts, canManage, aiEnabled, isReceiptImport = false, receiptImportCompleted = false }: { cartId: string; receipts: ReceiptMetadata[]; canManage: boolean; aiEnabled: boolean; isReceiptImport?: boolean; receiptImportCompleted?: boolean }) {
+export function ReceiptPanel({ cartId, receipts, canManage, aiEnabled, allowLibraryUploads, isReceiptImport = false, receiptImportCompleted = false }: { cartId: string; receipts: ReceiptMetadata[]; canManage: boolean; aiEnabled: boolean; allowLibraryUploads: boolean; isReceiptImport?: boolean; receiptImportCompleted?: boolean }) {
   const { t, locale } = useT();
   const [uploadState, uploadAction] = useActionState(uploadReceiptAction, initialReceiptMutationResult);
   const [signedState, signedAction] = useActionState(getReceiptSignedUrlsAction, initialSignedReceiptResult);
@@ -101,7 +101,7 @@ export function ReceiptPanel({ cartId, receipts, canManage, aiEnabled, isReceipt
       {canManage ? (
         <form action={uploadAction} className="grid gap-3 border-t border-[var(--line)] pt-5">
           <Field label={t("history.receiptFile")} htmlFor="receipt-file">
-            <Input id="receipt-file" name="receipt" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" required className="py-2" />
+            <Input id="receipt-file" name="receipt" type="file" accept="image/jpeg,image/png,image/webp" capture={allowLibraryUploads ? undefined : "environment"} required className="py-2" />
           </Field>
           <input type="hidden" name="cartId" value={cartId} />
           <input type="hidden" name="mutationId" value={uploadMutationId} />

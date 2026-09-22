@@ -12,7 +12,7 @@ import type { HistoryDetailData } from "./data";
 import { EmptyReceiptImportDelete } from "./empty-receipt-import-delete";
 import { ReceiptPanel } from "./receipt-panel";
 
-export function HistoryDetail({ data, aiEnabled }: { data: HistoryDetailData; aiEnabled: boolean }) {
+export function HistoryDetail({ data, aiEnabled, allowLibraryUploads }: { data: HistoryDetailData; aiEnabled: boolean; allowLibraryUploads: boolean }) {
   const { t, locale } = useT();
   const date = new Intl.DateTimeFormat(locale === "pt" ? "pt-PT" : "en-GB", { dateStyle: "long", timeStyle: "short" }).format(new Date(data.cart.finalizedAt));
   const emptyReceiptImport = data.cart.isReceiptImport && data.items.length === 0 && Number(data.cart.total) === 0;
@@ -66,6 +66,7 @@ export function HistoryDetail({ data, aiEnabled }: { data: HistoryDetailData; ai
             receipts={data.receipts}
             canManage={data.cart.canManageReceipts}
             aiEnabled={aiEnabled}
+            allowLibraryUploads={allowLibraryUploads}
             isReceiptImport={data.cart.isReceiptImport}
             receiptImportCompleted={data.cart.isReceiptImport && data.items.length > 0}
           />
