@@ -95,6 +95,8 @@ export type Database = {
       get_history_cart_detail: Rpc<{ cart_id: string }>;
       get_history_cart_items: Rpc<{ cart_id: string }>;
       get_history_cart_receipts: Rpc<{ cart_id: string }>;
+      create_receipt_import_cart: Rpc<{ mutation_id: string }>;
+      discard_empty_receipt_import_cart: Rpc<{ cart_id: string; mutation_id: string }>;
       create_receipt_metadata: Rpc<{ cart_id: string; metadata: Json; mutation_id: string }>;
       reorder_receipts: Rpc<{ cart_id: string; ordered_ids: string[]; mutation_id: string }>;
       delete_receipt: Rpc<{ cart_id: string; receipt_id: string; mutation_id: string }>;
@@ -115,6 +117,7 @@ export type Database = {
       consume_ai_daily_quota: Rpc<{ daily_limit: number }>;
       record_ai_provider_request: Rpc<{ request_id: string; provider: string; status: string; provider_request_id?: string; error_code?: string }>;
       record_ai_receipt_review: Rpc<{ cart_id: string; receipt_id: string; review_request_id: string; decisions: Json; mutation_id: string }>;
+      apply_ai_receipt_import: Rpc<{ cart_id: string; receipt_id: string; review_request_id: string; import_data: Json; mutation_id: string }>;
       get_my_data_export: Rpc;
       prepare_account_deletion: Rpc<{ mutation_id: string }>;
       validate_invite_code: Rpc<{ code: string; email: string }>;

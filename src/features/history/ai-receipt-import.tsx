@@ -3,7 +3,8 @@
 import { initialAiReceiptResult, initialAiReviewDecisionResult } from "@/lib/actions/types";
 import { Check, Sparkles, X } from "lucide-react";
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useActionState, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/ui/submit-button";
@@ -16,8 +17,15 @@ import { extractReceiptAction, recordAiReviewDecisionAction } from "./ai-actions
 
 type Decision = "accepted" | "rejected";
 
-function ReviewDecisionForm({ cartId, receiptId, review, decisions }: { cartId: string; receiptId: string; review: ReceiptReview; decisions: Record<number, Decision> }) {
+function normalizedPurchaseDate(value: string | null): string | null {
+  if (!value) return null;
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? new Date(timestamp).toISOString() : null;
+}
+
+function ReviewDecisionForm({ cartId, receiptId, review, decisions, isReceiptImport }: { cartId: string; receiptId: string; review: ReceiptReview; decisions: Record<number, Decision>; isReceiptImport: boolean }) {
   const { t } = useT();
+  const router = useRouter();
   const [state, action] = useActionState(recordAiReviewDecisionAction, initialAiReviewDecisionResult);
   const mutationId = useMutationId(state);
   const submitted = review.items.flatMap((item, itemIndex) => {
@@ -25,9 +33,20 @@ function ReviewDecisionForm({ cartId, receiptId, review, decisions }: { cartId: 
     return decision ? [{ itemIndex, decision, matchedCartItemId: item.matchedCartItemId }] : [];
   });
   const complete = submitted.length === review.items.length;
+  const acceptedItems = review.items.filter((_, itemIndex) => decisions[itemIndex] === "accepted").map(({ name, barcode, quantity, unitPrice, lineTotal }) => ({ name, barcode, quantity, unitPrice, lineTotal }));
+  const importData = {
+    merchant: review.merchant,
+    purchasedAt: normalizedPurchaseDate(review.purchasedAt),
+    items: acceptedItems,
+    accepted: acceptedItems.length,
+    rejected: review.items.length - acceptedItems.length,
+  };
   const errorKey = !state.success && state.errorCode !== "IDLE"
     ? (`errors.${state.errorCode}` in dictionaries.en ? `errors.${state.errorCode}` as TranslationKey : "errors.UNKNOWN")
     : null;
+  useEffect(() => {
+    if (state.success && isReceiptImport) router.refresh();
+  }, [isReceiptImport, router, state]);
   return (
     <form action={action} className="grid gap-2">
       <input type="hidden" name="cartId" value={cartId} />
@@ -36,14 +55,16 @@ function ReviewDecisionForm({ cartId, receiptId, review, decisions }: { cartId: 
       <input type="hidden" name="mutationId" value={mutationId} />
       <input type="hidden" name="lineCount" value={review.items.length} />
       <input type="hidden" name="decisions" value={JSON.stringify(submitted)} />
-      {state.success ? <p role="status" className="text-sm font-semibold text-emerald-800">{t("ai.reviewSaved")}</p> : null}
+      <input type="hidden" name="receiptImport" value={isReceiptImport ? "true" : "false"} />
+      {isReceiptImport ? <input type="hidden" name="importData" value={JSON.stringify(importData)} /> : null}
+      {state.success ? <p role="status" className="text-sm font-semibold text-emerald-800">{t(isReceiptImport ? "ai.importSaved" : "ai.reviewSaved")}</p> : null}
       {errorKey ? <p role="alert" className="border border-red-200 bg-[var(--coral-soft)] p-3 text-sm text-red-900">{t(errorKey)}</p> : null}
-      <SubmitButton disabled={!complete || state.success}><Check className="h-4 w-4" aria-hidden />{t("common.save")}</SubmitButton>
+      <SubmitButton disabled={!complete || state.success || (isReceiptImport && acceptedItems.length === 0)}><Check className="h-4 w-4" aria-hidden />{t(isReceiptImport ? "ai.saveImport" : "common.save")}</SubmitButton>
     </form>
   );
 }
 
-export function AiReceiptImport({ cartId, receiptId }: { cartId: string; receiptId: string }) {
+export function AiReceiptImport({ cartId, receiptId, isReceiptImport = false }: { cartId: string; receiptId: string; isReceiptImport?: boolean }) {
   const { t, locale } = useT();
   const [state, action] = useActionState(extractReceiptAction, initialAiReceiptResult);
   const [decisions, setDecisions] = useState<Record<number, Decision>>({});
@@ -52,7 +73,7 @@ export function AiReceiptImport({ cartId, receiptId }: { cartId: string; receipt
     ? (`errors.${state.errorCode}` in dictionaries.en ? `errors.${state.errorCode}` as TranslationKey : "errors.UNKNOWN")
     : null;
   return (
-    <details className="border-t border-[var(--line)] bg-white">
+    <details className="border-t border-[var(--line)] bg-white" open={isReceiptImport ? true : undefined}>
       <summary className="flex min-h-11 cursor-pointer items-center gap-2 px-3 py-2 text-sm font-semibold text-[var(--emerald-dark)]"><Sparkles className="h-4 w-4" aria-hidden />{t("ai.import")}</summary>
       <div className="grid gap-4 border-t border-[var(--line)] p-3">
         <p className="text-xs leading-5 text-[var(--muted)]">{t("ai.disclosure")} <Link href="/privacy" className="font-semibold text-[var(--emerald-dark)] underline">{t("privacy.title")}</Link></p>
@@ -66,7 +87,7 @@ export function AiReceiptImport({ cartId, receiptId }: { cartId: string; receipt
         {review ? (
           <section aria-labelledby={`ai-review-${receiptId}`} className="grid gap-3">
             <div className="flex flex-wrap items-center justify-between gap-2"><h3 id={`ai-review-${receiptId}`} className="font-bold">{t("ai.review")}</h3><Button variant="secondary" size="compact" onClick={() => setDecisions(Object.fromEntries(review.items.map((_, index) => [index, "accepted"]))) }><Check className="h-4 w-4" aria-hidden />{t("ai.acceptAll")}</Button></div>
-            <p className="text-xs leading-5 text-[var(--muted)]">{t("ai.proposalOnly")}</p>
+            <p className="text-xs leading-5 text-[var(--muted)]">{t(isReceiptImport ? "ai.importReviewHelp" : "ai.proposalOnly")}</p>
             <ol className="divide-y divide-[var(--line)] border-y border-[var(--line)]">
               {review.items.map((item, index) => (
                 <li key={`${item.name}-${index}`} className="grid gap-2 py-3">
@@ -76,7 +97,7 @@ export function AiReceiptImport({ cartId, receiptId }: { cartId: string; receipt
                 </li>
               ))}
             </ol>
-            <ReviewDecisionForm key={review.requestId} cartId={cartId} receiptId={receiptId} review={review} decisions={decisions} />
+            <ReviewDecisionForm key={review.requestId} cartId={cartId} receiptId={receiptId} review={review} decisions={decisions} isReceiptImport={isReceiptImport} />
           </section>
         ) : null}
       </div>

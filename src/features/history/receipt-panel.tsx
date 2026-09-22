@@ -55,7 +55,7 @@ function ReceiptReorder({ cartId, orderedIds, direction }: { cartId: string; ord
   );
 }
 
-export function ReceiptPanel({ cartId, receipts, canManage, aiEnabled }: { cartId: string; receipts: ReceiptMetadata[]; canManage: boolean; aiEnabled: boolean }) {
+export function ReceiptPanel({ cartId, receipts, canManage, aiEnabled, isReceiptImport = false, receiptImportCompleted = false }: { cartId: string; receipts: ReceiptMetadata[]; canManage: boolean; aiEnabled: boolean; isReceiptImport?: boolean; receiptImportCompleted?: boolean }) {
   const { t, locale } = useT();
   const [uploadState, uploadAction] = useActionState(uploadReceiptAction, initialReceiptMutationResult);
   const [signedState, signedAction] = useActionState(getReceiptSignedUrlsAction, initialSignedReceiptResult);
@@ -89,7 +89,7 @@ export function ReceiptPanel({ cartId, receipts, canManage, aiEnabled }: { cartI
                   <ReceiptReorder key={`${receipt.id}:later:${later?.join(":") ?? ""}`} cartId={cartId} orderedIds={later} direction="later" />
                   <ReceiptDelete cartId={cartId} receiptId={receipt.id} />
                 </div> : null}
-                {aiEnabled ? <AiReceiptImport cartId={cartId} receiptId={receipt.id} /> : null}
+                {aiEnabled && !receiptImportCompleted ? <AiReceiptImport cartId={cartId} receiptId={receipt.id} isReceiptImport={isReceiptImport} /> : null}
               </li>
             );
           })}

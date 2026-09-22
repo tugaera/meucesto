@@ -12,6 +12,25 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.13",
+    "date": "2026-09-22",
+    "categories": [
+      {
+        "name": "Added",
+        "entries": [
+          "Added a receipt-first history flow for purchases made outside the app, with direct camera/file upload from the history page.",
+          "Added reviewed AI import for receipt purchases so accepted lines, detected prices, quantities, purchase date, and known store are saved to history only after user confirmation."
+        ]
+      },
+      {
+        "name": "Changed",
+        "entries": [
+          "Marked receipt-created history entries separately so normal finalized baskets remain immutable while controlled receipt imports can be completed once."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.12",
     "date": "2026-09-22",
     "categories": [

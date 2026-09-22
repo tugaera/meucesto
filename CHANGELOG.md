@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.13] - 2026-09-22
+
+### Added
+- Added a receipt-first history flow for purchases made outside the app, with direct camera/file upload from the history page.
+- Added reviewed AI import for receipt purchases so accepted lines, detected prices, quantities, purchase date, and known store are saved to history only after user confirmation.
+
+### Changed
+- Marked receipt-created history entries separately so normal finalized baskets remain immutable while controlled receipt imports can be completed once.
+
 ## [1.0.12] - 2026-09-22
 
 ### Fixed

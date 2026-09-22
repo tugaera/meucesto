@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, ChevronRight, History } from "lucide-react";
+import { CalendarDays, ChevronRight, History, Upload } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -15,7 +15,11 @@ export function HistoryWorkspace({ data }: { data: HistoryPageData }) {
   const formatter = new Intl.DateTimeFormat(locale === "pt" ? "pt-PT" : "en-GB", { dateStyle: "medium", timeStyle: "short" });
   return (
     <div className="grid gap-6">
-      <PageHeading title={t("history.title")} description={t("history.subtitle")} />
+      <PageHeading title={t("history.title")} description={t("history.subtitle")} action={(
+        <Link href="/history/import" className={buttonVariants({ variant: "primary", size: "compact" })} aria-label={t("history.importReceipt")} title={t("history.importReceipt")}>
+          <Upload className="h-4 w-4" aria-hidden /><span className="hidden sm:inline">{t("history.importReceipt")}</span>
+        </Link>
+      )} />
       <Surface>
         {data.rows.length ? <ol>{data.rows.map((row) => (
           <li key={row.id} className="border-b border-[var(--line)] last:border-0">
