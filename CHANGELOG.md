@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.12] - 2026-09-22
+
+### Fixed
+- Improved the mobile bottom navigation so inactive items show icons only and the active page keeps its text label.
+
 ## [1.0.11] - 2026-09-22
 
 ### Fixed

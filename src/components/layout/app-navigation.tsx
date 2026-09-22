@@ -22,7 +22,21 @@ export function AppNavigation({ showAdmin }: { showAdmin: boolean }) {
     <nav aria-label={t("nav.main")} className="contents">
       {items.map(({ href, key, icon: Icon }) => {
         const active = pathname === href || pathname.startsWith(`${href}/`);
-        return <Link key={href} href={href} aria-current={active ? "page" : undefined} className={cn("group flex min-h-12 items-center gap-3 border-l-2 px-4 text-sm font-semibold transition-colors md:min-h-11", active ? "border-[var(--emerald)] bg-[var(--emerald-soft)] text-[var(--emerald-dark)]" : "border-transparent text-[var(--muted)] hover:bg-gray-50 hover:text-[var(--ink)]")}><Icon className="h-5 w-5 shrink-0" aria-hidden /><span>{t(key)}</span></Link>;
+        return (
+          <Link
+            key={href}
+            href={href}
+            aria-label={t(key)}
+            aria-current={active ? "page" : undefined}
+            className={cn(
+              "group flex min-h-12 items-center justify-center gap-1.5 border-t-2 px-1 text-xs font-semibold transition-colors md:min-h-11 md:justify-start md:gap-3 md:border-l-2 md:border-t-0 md:px-4 md:text-sm",
+              active ? "border-[var(--emerald)] bg-[var(--emerald-soft)] text-[var(--emerald-dark)]" : "border-transparent text-[var(--muted)] hover:bg-gray-50 hover:text-[var(--ink)]",
+            )}
+          >
+            <Icon className="h-5 w-5 shrink-0" aria-hidden />
+            <span className={cn("max-w-[4.75rem] truncate leading-4 md:max-w-none", active ? "inline" : "hidden md:inline")}>{t(key)}</span>
+          </Link>
+        );
       })}
     </nav>
   );

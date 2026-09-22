@@ -12,6 +12,18 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.12",
+    "date": "2026-09-22",
+    "categories": [
+      {
+        "name": "Fixed",
+        "entries": [
+          "Improved the mobile bottom navigation so inactive items show icons only and the active page keeps its text label."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.11",
     "date": "2026-09-22",
     "categories": [
