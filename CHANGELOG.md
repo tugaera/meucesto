@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.19] - 2026-09-23
+
+### Changed
+- Reworked receipt-import review so extracted lines can be selected with checkboxes, bulk selected or deselected, and edited for name, quantity, unit price, total, and barcode before saving.
+
 ## [1.0.18] - 2026-09-23
 
 ### Changed

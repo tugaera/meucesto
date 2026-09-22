@@ -12,6 +12,18 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.19",
+    "date": "2026-09-23",
+    "categories": [
+      {
+        "name": "Changed",
+        "entries": [
+          "Reworked receipt-import review so extracted lines can be selected with checkboxes, bulk selected or deselected, and edited for name, quantity, unit price, total, and barcode before saving."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.18",
     "date": "2026-09-23",
     "categories": [
