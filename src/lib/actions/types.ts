@@ -17,5 +17,6 @@ export const initialListMutationResult = initialActionResult;
 export const initialAiReceiptResult = initialActionResult;
 export const initialAiReviewDecisionResult = initialActionResult;
 export const initialReceiptMutationResult = initialActionResult;
+export const initialReceiptImportResult = initialActionResult;
 export const initialSignedReceiptResult = initialActionResult;
 export const initialAdminActionResult = initialActionResult;

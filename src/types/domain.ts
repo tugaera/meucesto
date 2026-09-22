@@ -119,6 +119,7 @@ export const historyRowsSchema = z.array(historyRowSchema);
 
 export const historyCartDetailSchema = z.object({
   id: z.uuid(), ownerId: z.uuid(), ownerEmail: z.string(), isOwner: z.boolean(), canManageReceipts: z.boolean(),
+  isReceiptImport: z.boolean().default(false),
   store: z.object({ id: z.uuid(), name: z.string() }).nullable(), total: decimalString,
   finalizedAt: z.string(), createdAt: z.string(), revision: z.number().int(),
 });

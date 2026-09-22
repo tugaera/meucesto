@@ -18,6 +18,7 @@ interface SignedReceipt {
 }
 
 export type ReceiptMutationResult = ActionResult<{ message: string }>;
+export type ReceiptImportResult = ActionResult<{ cartId: string }>;
 export type SignedReceiptResult = ActionResult<{ receipts: SignedReceipt[] }>;
 
 const cartIdSchema = z.object({ cartId: z.uuid() });
@@ -25,6 +26,64 @@ const cartMutationSchema = cartIdSchema.extend({ mutationId: z.uuid() });
 const receiptMutationSchema = cartMutationSchema.extend({ receiptId: z.uuid() });
 const invalid = (error: z.ZodError): ReceiptMutationResult => ({ success: false, errorCode: "VALIDATION_ERROR", fieldErrors: error.flatten().fieldErrors as FieldErrors });
 const failed = (error: unknown): ReceiptMutationResult => ({ success: false, errorCode: toErrorCode(error) === "UNKNOWN" && error instanceof Error ? error.message : toErrorCode(error) });
+
+function importFailed(error: unknown): ReceiptImportResult {
+  const errorCode = toErrorCode(error);
+  const candidate = error as { code?: string; message?: string; details?: string; hint?: string };
+  console.error("Receipt import failed", { errorCode, code: candidate.code, message: candidate.message, details: candidate.details, hint: candidate.hint });
+  return { success: false, errorCode: errorCode === "UNKNOWN" && error instanceof Error ? error.message : errorCode };
+}
+
+export async function createReceiptImportAction(_state: ReceiptImportResult, formData: FormData): Promise<ReceiptImportResult> {
+  const parsed = z.object({
+    cartMutationId: z.uuid(),
+    receiptMutationId: z.uuid(),
+    cleanupMutationId: z.uuid(),
+  }).safeParse(Object.fromEntries(formData.entries()));
+  if (!parsed.success) return { success: false, errorCode: "VALIDATION_ERROR", fieldErrors: parsed.error.flatten().fieldErrors as FieldErrors };
+  const file = formData.get("receipt");
+  if (!(file instanceof File)) return { success: false, errorCode: "RECEIPT_INVALID" };
+
+  const { userId } = await requireUser();
+  let cartId: string | null = null;
+  let objectPath: string | null = null;
+  try {
+    const environment = getServerEnvironment();
+    const image = await processReceiptImage(file, environment.RECEIPT_MAX_BYTES);
+    const supabase = await createClient();
+    const created = await supabase.rpc("create_receipt_import_cart", { mutation_id: parsed.data.cartMutationId });
+    if (created.error) return importFailed(created.error);
+    const createdCart = z.object({ cartId: z.uuid() }).safeParse(created.data);
+    if (!createdCart.success) return { success: false, errorCode: "INVALID_SERVER_RESPONSE" };
+    cartId = createdCart.data.cartId;
+    objectPath = createReceiptObjectPath(userId, cartId, parsed.data.receiptMutationId);
+
+    const storage = createAdminClient().storage.from("receipts");
+    const upload = await storage.upload(objectPath, image.bytes, { contentType: image.mimeType, upsert: false, cacheControl: "0" });
+    if (upload.error) {
+      const folder = `${userId}/${cartId}`;
+      const existing = await storage.list(folder, { limit: 2, search: `${parsed.data.receiptMutationId}.jpg` });
+      if (existing.error || !existing.data.some((object) => object.name === `${parsed.data.receiptMutationId}.jpg`)) throw upload.error;
+    }
+
+    const metadata = await supabase.rpc("create_receipt_metadata", {
+      cart_id: cartId,
+      metadata: { objectPath, mimeType: image.mimeType, byteSize: image.bytes.length, width: image.width, height: image.height },
+      mutation_id: parsed.data.receiptMutationId,
+    });
+    if (metadata.error) throw metadata.error;
+    revalidatePath("/history");
+    return { success: true, data: { cartId } };
+  } catch (error) {
+    if (objectPath) await createAdminClient().storage.from("receipts").remove([objectPath]);
+    if (cartId) {
+      const supabase = await createClient();
+      const cleanup = await supabase.rpc("discard_empty_receipt_import_cart", { cart_id: cartId, mutation_id: parsed.data.cleanupMutationId });
+      if (cleanup.error) console.error("Receipt import cleanup failed", { cartId, code: cleanup.error.code, message: cleanup.error.message });
+    }
+    return importFailed(error);
+  }
+}
 
 export async function uploadReceiptAction(_state: ReceiptMutationResult, formData: FormData): Promise<ReceiptMutationResult> {
   const parsed = cartMutationSchema.safeParse(Object.fromEntries(formData.entries()));
