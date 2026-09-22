@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.16] - 2026-09-22
+
+### Changed
+- Clarified receipt-first history imports so uploaded receipts are described as pending extraction and unmatched extracted lines are shown as new receipt lines instead of missing basket matches.
+
 ## [1.0.15] - 2026-09-22
 
 ### Changed

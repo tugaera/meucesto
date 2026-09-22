@@ -109,7 +109,7 @@ export function AiReceiptImport({ cartId, receiptId, isReceiptImport = false }: 
                     </div>
                     <p className="text-base font-bold text-[var(--ink)] sm:text-right">{formatMoney(item.lineTotal, locale)}</p>
                   </div>
-                  {item.flags.length ? <div className="flex flex-wrap gap-1.5">{item.flags.map((flag) => <Badge key={flag} tone={flag === "no_match" ? "warning" : "info"}>{t(flag === "no_match" ? "ai.noMatch" : flag === "price_differs" ? "ai.priceDiffers" : "ai.quantityDiffers")}</Badge>)}</div> : null}
+                  {item.flags.length ? <div className="flex flex-wrap gap-1.5">{item.flags.map((flag) => <Badge key={flag} tone={flag === "no_match" ? "warning" : "info"}>{t(flag === "no_match" ? (isReceiptImport ? "ai.newReceiptLine" : "ai.noMatch") : flag === "price_differs" ? "ai.priceDiffers" : "ai.quantityDiffers")}</Badge>)}</div> : null}
                   <div className="grid gap-2 sm:grid-cols-2" role="group" aria-label={t("ai.item")}><Button size="compact" className="h-auto min-h-10 px-3 py-2 text-xs sm:text-sm" variant={decisions[index] === "accepted" ? "primary" : "secondary"} onClick={() => setDecisions((current) => ({ ...current, [index]: "accepted" }))}><Check className="h-4 w-4 shrink-0" aria-hidden />{t(isReceiptImport ? "ai.keepLine" : "ai.accept")}</Button><Button size="compact" className="h-auto min-h-10 px-3 py-2 text-xs sm:text-sm" variant={decisions[index] === "rejected" ? "danger" : "secondary"} onClick={() => setDecisions((current) => ({ ...current, [index]: "rejected" }))}><X className="h-4 w-4 shrink-0" aria-hidden />{t(isReceiptImport ? "ai.ignoreLine" : "ai.reject")}</Button></div>
                 </li>
               ))}
