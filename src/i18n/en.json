@@ -224,7 +224,7 @@
   "history.importFileHint": "JPEG, PNG or WebP. You can take the receipt photo directly on your phone.",
   "history.importContinue": "Upload and continue",
   "history.importUploading": "Uploading receipt...",
-  "history.importPending": "The receipt was uploaded. Extract it, review the detected lines and save only the ones you want to keep in this purchase.",
+  "history.importPending": "The receipt was uploaded. In the Receipts panel, extract it, review the detected lines and save only the ones you want to keep in this purchase.",
   "history.deleteEmptyImport": "Delete empty import",
   "history.deleteEmptyImportHelp": "If this receipt has no saved lines, you can delete this entry and remove the associated images.",
   "history.deleteEmptyImportConfirm": "Delete this empty import and its receipt images?",

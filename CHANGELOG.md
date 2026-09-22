@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.18] - 2026-09-23
+
+### Changed
+- Moved the AI extraction and review controls above the receipt preview for pending receipt imports so first-time imports show the next action immediately.
+
 ## [1.0.17] - 2026-09-22
 
 ### Added

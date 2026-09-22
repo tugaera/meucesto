@@ -12,6 +12,18 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.18",
+    "date": "2026-09-23",
+    "categories": [
+      {
+        "name": "Changed",
+        "entries": [
+          "Moved the AI extraction and review controls above the receipt preview for pending receipt imports so first-time imports show the next action immediately."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.17",
     "date": "2026-09-22",
     "categories": [

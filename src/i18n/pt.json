@@ -224,7 +224,7 @@
   "history.importFileHint": "JPEG, PNG ou WebP. Podes fotografar o recibo diretamente no telemóvel.",
   "history.importContinue": "Carregar e continuar",
   "history.importUploading": "A carregar recibo...",
-  "history.importPending": "O recibo foi carregado. Clica em extrair, revê as linhas lidas e guarda apenas as que queres manter nesta compra.",
+  "history.importPending": "O recibo foi carregado. No painel Recibos, clica em extrair, revê as linhas lidas e guarda apenas as que queres manter nesta compra.",
   "history.deleteEmptyImport": "Apagar importação vazia",
   "history.deleteEmptyImportHelp": "Se este recibo não tem linhas guardadas, podes apagar esta entrada e remover as imagens associadas.",
   "history.deleteEmptyImportConfirm": "Apagar esta importação vazia e as imagens do recibo?",

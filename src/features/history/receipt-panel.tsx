@@ -82,7 +82,8 @@ export function ReceiptPanel({ cartId, receipts, canManage, aiEnabled, isReceipt
             const later = next ? [...receipts.map((item) => item.id).slice(0, index), next.id, receipt.id, ...receipts.map((item) => item.id).slice(index + 2)] : null;
             return (
               <li key={receipt.id} className="border border-[var(--line)] bg-gray-50">
-                <div className="flex aspect-[4/5] items-center justify-center overflow-hidden bg-gray-100">
+                {aiEnabled && !receiptImportCompleted && isReceiptImport ? <AiReceiptImport cartId={cartId} receiptId={receipt.id} isReceiptImport /> : null}
+                <div className={cn("flex items-center justify-center overflow-hidden bg-gray-100", isReceiptImport && !receiptImportCompleted ? "aspect-[16/10]" : "aspect-[4/5]")}>
                   {signed ? <Image src={signed.url} width={receipt.width ?? 1200} height={receipt.height ?? 1500} unoptimized alt={t("history.receiptAlt", { number: index + 1 })} className="h-full w-full object-contain" /> : <FileImage className="h-10 w-10 text-gray-400" aria-hidden />}
                 </div>
                 {canManage ? <div className="flex items-center justify-end border-t border-[var(--line)] bg-white p-1">
@@ -90,7 +91,7 @@ export function ReceiptPanel({ cartId, receipts, canManage, aiEnabled, isReceipt
                   <ReceiptReorder key={`${receipt.id}:later:${later?.join(":") ?? ""}`} cartId={cartId} orderedIds={later} direction="later" />
                   <ReceiptDelete cartId={cartId} receiptId={receipt.id} />
                 </div> : null}
-                {aiEnabled && !receiptImportCompleted ? <AiReceiptImport cartId={cartId} receiptId={receipt.id} isReceiptImport={isReceiptImport} /> : null}
+                {aiEnabled && !receiptImportCompleted && !isReceiptImport ? <AiReceiptImport cartId={cartId} receiptId={receipt.id} isReceiptImport={isReceiptImport} /> : null}
               </li>
             );
           })}
