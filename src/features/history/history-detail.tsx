@@ -64,6 +64,7 @@ export function HistoryDetail({ data, aiEnabled, allowLibraryUploads }: { data: 
             key={data.receipts.map((receipt) => `${receipt.id}:${receipt.sortOrder}`).join("|")}
             cartId={data.cart.id}
             receipts={data.receipts}
+            references={data.references}
             canManage={data.cart.canManageReceipts}
             aiEnabled={aiEnabled}
             allowLibraryUploads={allowLibraryUploads}

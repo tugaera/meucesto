@@ -12,6 +12,18 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.21",
+    "date": "2026-09-23",
+    "categories": [
+      {
+        "name": "Added",
+        "entries": [
+          "Added an optional per-line product workflow during receipt import review, letting users create catalogue product details from an extracted line while still keeping simple history-only lines possible."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.20",
     "date": "2026-09-23",
     "categories": [

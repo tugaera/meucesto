@@ -10,7 +10,7 @@ import { Field, Input, Select } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { useT } from "@/i18n/provider";
 import { useMutationId } from "@/lib/actions/use-mutation-id";
-import { barcodeLookupResponseSchema, type ProductDetail, type ReferenceData } from "@/types/domain";
+import { barcodeLookupResponseSchema, productDetailSchema, type ProductDetail, type ReferenceData } from "@/types/domain";
 import { ScannerLauncher } from "@/features/shopping/scanner-launcher";
 import {
   createCatalogProductAction, saveCatalogProductAction } from "./actions";
@@ -44,22 +44,30 @@ function valuesForProduct(product: ProductDetail | null, references: ReferenceDa
   };
 }
 
+function mergeInitialValues(values: EditorValues, initialValues?: Partial<EditorValues>): EditorValues {
+  return initialValues ? { ...values, ...initialValues } : values;
+}
+
 export function ProductEditor({
   references,
   product = null,
   elevated,
+  initialValues,
   onClose,
+  onProductSaved,
   onSaved,
 }: {
   references: ReferenceData;
   product?: ProductDetail | null;
   elevated: boolean;
+  initialValues?: Partial<EditorValues>;
   onClose?: () => void;
+  onProductSaved?: (product: ProductDetail) => void;
   onSaved?: () => void;
 }) {
   const { t, locale } = useT();
   const [state, action] = useActionState(product ? saveCatalogProductAction : createCatalogProductAction, initialProductMutationResult);
-  const [values, setValues] = useState(() => valuesForProduct(product, references));
+  const [values, setValues] = useState(() => mergeInitialValues(valuesForProduct(product, references), initialValues));
   const productMutationId = useMutationId(state);
   const brandMutationId = useMutationId(state);
   const [lookupStatus, setLookupStatus] = useState<"idle" | "loading" | "local" | "external" | "none" | "error">("idle");
@@ -113,9 +121,11 @@ export function ProductEditor({
 
   useEffect(() => {
     if (!state.success) return;
+    const savedProduct = productDetailSchema.safeParse(state.data.data);
+    if (savedProduct.success) onProductSaved?.(savedProduct.data);
     onSaved?.();
     onClose?.();
-  }, [onClose, onSaved, state.success]);
+  }, [onClose, onProductSaved, onSaved, state]);
 
   const lookupMessage = lookupStatus === "local"
     ? t("shopping.localProduct")

@@ -9,12 +9,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
+import { ProductEditor } from "@/features/products/product-editor";
 import { dictionaries, type TranslationKey } from "@/i18n";
 import { useT } from "@/i18n/provider";
 import { useMutationId } from "@/lib/actions/use-mutation-id";
 import type { ReceiptReview } from "@/lib/ai/types";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
+import type { ProductDetail, ReferenceData } from "@/types/domain";
 import { extractReceiptAction, recordAiReviewDecisionAction } from "./ai-actions";
 
 type Decision = "accepted" | "rejected";
@@ -103,10 +105,52 @@ function ReviewDecisionForm({ cartId, receiptId, review, decisions, isReceiptImp
   );
 }
 
-function ReceiptReviewEditor({ cartId, receiptId, review, isReceiptImport }: { cartId: string; receiptId: string; review: ReceiptReview; isReceiptImport: boolean }) {
+function ReceiptLineProductDialog({
+  line,
+  references,
+  onProductSaved,
+}: {
+  line: EditableReceiptLine;
+  references: ReferenceData;
+  onProductSaved: (product: ProductDetail) => void;
+}) {
+  const { t } = useT();
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <Button type="button" variant="secondary" size="compact" className="w-fit" onClick={() => setOpen(true)}>{t("ai.productDetails")}</Button>
+      {open ? (
+        <dialog open aria-labelledby="receipt-line-product-title" className="fixed inset-4 z-50 m-auto max-h-[92vh] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto border border-[var(--line)] bg-white p-0 text-[var(--ink)] shadow-xl backdrop:bg-black/55">
+          <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[var(--line)] bg-white px-5 py-4">
+            <div>
+              <h2 id="receipt-line-product-title" className="text-lg font-bold">{t("ai.productDetails")}</h2>
+              <p className="mt-1 text-xs leading-5 text-[var(--muted)]">{t("ai.productDetailsHelp")}</p>
+            </div>
+            <Button variant="quiet" size="icon" onClick={() => setOpen(false)} aria-label={t("common.close")}><X className="h-5 w-5" aria-hidden /></Button>
+          </header>
+          <div className="p-5">
+            <ProductEditor
+              references={references}
+              elevated={false}
+              initialValues={{ name: line.name, barcode: line.barcode }}
+              onClose={() => setOpen(false)}
+              onProductSaved={(product) => {
+                onProductSaved(product);
+                setOpen(false);
+              }}
+            />
+          </div>
+        </dialog>
+      ) : null}
+    </>
+  );
+}
+
+function ReceiptReviewEditor({ cartId, receiptId, review, isReceiptImport, references }: { cartId: string; receiptId: string; review: ReceiptReview; isReceiptImport: boolean; references: ReferenceData }) {
   const { t, locale } = useT();
   const [decisions, setDecisions] = useState<Record<number, Decision>>(() => decisionsFromReview(review, isReceiptImport ? "accepted" : "rejected"));
   const [editableLines, setEditableLines] = useState<EditableReceiptLine[]>(() => editableLinesFromReview(review));
+  const [linkedProducts, setLinkedProducts] = useState<Record<number, ProductDetail>>({});
   const acceptedCount = Object.values(decisions).filter((decision) => decision === "accepted").length;
   const updateEditableLine = (index: number, patch: Partial<EditableReceiptLine>) => {
     setEditableLines((current) => current.map((line, lineIndex) => lineIndex === index ? { ...line, ...patch } : line));
@@ -134,13 +178,25 @@ function ReceiptReviewEditor({ cartId, receiptId, review, isReceiptImport }: { c
         {review.items.map((item, index) => {
           const editable = editableLines[index] ?? { name: item.name, barcode: item.barcode ?? "", quantity: item.quantity, unitPrice: item.unitPrice ?? "", lineTotal: item.lineTotal };
           const accepted = decisions[index] === "accepted";
+          const linkedProduct = linkedProducts[index];
           return (
             <li key={`${item.name}-${index}`} className={cn("grid gap-3 border p-3", accepted ? "border-[var(--emerald)] bg-emerald-50/60" : decisions[index] === "rejected" ? "border-red-200 bg-red-50/60" : "border-[var(--line)] bg-white")}>
               {isReceiptImport ? (
-                <label className="flex min-h-8 items-center gap-3 text-sm font-semibold">
-                  <input type="checkbox" checked={accepted} onChange={(event) => setDecisions((current) => ({ ...current, [index]: event.target.checked ? "accepted" : "rejected" }))} className="h-5 w-5 shrink-0 accent-[var(--emerald)]" />
-                  {accepted ? t("ai.keepLine") : t("ai.ignoreLine")}
-                </label>
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <label className="flex min-h-8 items-center gap-3 text-sm font-semibold">
+                    <input type="checkbox" checked={accepted} onChange={(event) => setDecisions((current) => ({ ...current, [index]: event.target.checked ? "accepted" : "rejected" }))} className="h-5 w-5 shrink-0 accent-[var(--emerald)]" />
+                    {accepted ? t("ai.keepLine") : t("ai.ignoreLine")}
+                  </label>
+                  <ReceiptLineProductDialog
+                    line={editable}
+                    references={references}
+                    onProductSaved={(product) => {
+                      updateEditableLine(index, { name: product.name, barcode: product.barcode ?? "" });
+                      setLinkedProducts((current) => ({ ...current, [index]: product }));
+                      setDecisions((current) => ({ ...current, [index]: "accepted" }));
+                    }}
+                  />
+                </div>
               ) : null}
               <div className={cn("grid gap-3", isReceiptImport ? "sm:grid-cols-[minmax(0,1.35fr)_minmax(7rem,0.45fr)_minmax(7rem,0.45fr)_minmax(7rem,0.45fr)]" : "sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start")}>
                 {isReceiptImport ? (
@@ -161,8 +217,11 @@ function ReceiptReviewEditor({ cartId, receiptId, review, isReceiptImport }: { c
                   </>
                 )}
               </div>
-              {isReceiptImport && item.barcode ? <Input aria-label={t("shopping.barcode")} value={editable.barcode} onChange={(event) => updateEditableLine(index, { barcode: event.target.value })} className="min-h-10 text-sm" /> : null}
-              {item.flags.length ? <div className="flex flex-wrap gap-1.5">{item.flags.map((flag) => <Badge key={flag} tone={flag === "no_match" ? "warning" : "info"}>{t(flag === "no_match" ? (isReceiptImport ? "ai.newReceiptLine" : "ai.noMatch") : flag === "price_differs" ? "ai.priceDiffers" : "ai.quantityDiffers")}</Badge>)}</div> : null}
+              {isReceiptImport ? <Input aria-label={t("shopping.barcode")} value={editable.barcode} onChange={(event) => updateEditableLine(index, { barcode: event.target.value })} className="min-h-10 text-sm" placeholder={t("shopping.barcode")} /> : null}
+              <div className="flex flex-wrap gap-1.5">
+                {linkedProduct ? <Badge tone="success">{t("ai.productLinked")}</Badge> : null}
+                {item.flags.map((flag) => <Badge key={flag} tone={flag === "no_match" ? "warning" : "info"}>{t(flag === "no_match" ? (isReceiptImport ? "ai.newReceiptLine" : "ai.noMatch") : flag === "price_differs" ? "ai.priceDiffers" : "ai.quantityDiffers")}</Badge>)}
+              </div>
               {!isReceiptImport ? <div className="grid gap-2 sm:grid-cols-2" role="group" aria-label={t("ai.item")}><Button size="compact" className="h-auto min-h-10 px-3 py-2 text-xs sm:text-sm" variant={accepted ? "primary" : "secondary"} onClick={() => setDecisions((current) => ({ ...current, [index]: "accepted" }))}><Check className="h-4 w-4 shrink-0" aria-hidden />{t("ai.accept")}</Button><Button size="compact" className="h-auto min-h-10 px-3 py-2 text-xs sm:text-sm" variant={decisions[index] === "rejected" ? "danger" : "secondary"} onClick={() => setDecisions((current) => ({ ...current, [index]: "rejected" }))}><X className="h-4 w-4 shrink-0" aria-hidden />{t("ai.reject")}</Button></div> : null}
             </li>
           );
@@ -173,7 +232,7 @@ function ReceiptReviewEditor({ cartId, receiptId, review, isReceiptImport }: { c
   );
 }
 
-export function AiReceiptImport({ cartId, receiptId, isReceiptImport = false }: { cartId: string; receiptId: string; isReceiptImport?: boolean }) {
+export function AiReceiptImport({ cartId, receiptId, references, isReceiptImport = false }: { cartId: string; receiptId: string; references: ReferenceData; isReceiptImport?: boolean }) {
   const { t } = useT();
   const [state, action] = useActionState(extractReceiptAction, initialAiReceiptResult);
   const review = state.success ? state.data.review : null;
@@ -192,7 +251,7 @@ export function AiReceiptImport({ cartId, receiptId, isReceiptImport = false }: 
           {errorKey ? <p role="alert" className="border border-red-200 bg-[var(--coral-soft)] p-3 text-sm text-red-900">{t(errorKey)}</p> : null}
           <SubmitButton><Sparkles className="h-4 w-4" aria-hidden />{t("ai.extract")}</SubmitButton>
         </form>
-        {review ? <ReceiptReviewEditor key={review.requestId} cartId={cartId} receiptId={receiptId} review={review} isReceiptImport={isReceiptImport} /> : null}
+        {review ? <ReceiptReviewEditor key={review.requestId} cartId={cartId} receiptId={receiptId} review={review} isReceiptImport={isReceiptImport} references={references} /> : null}
       </div>
     </details>
   );

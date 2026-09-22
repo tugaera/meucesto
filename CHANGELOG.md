@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.21] - 2026-09-23
+
+### Added
+- Added an optional per-line product workflow during receipt import review, letting users create catalogue product details from an extracted line while still keeping simple history-only lines possible.
+
 ## [1.0.20] - 2026-09-23
 
 ### Added
