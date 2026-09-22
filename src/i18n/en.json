@@ -359,7 +359,7 @@
   "errors.AI_CONSENT_REQUIRED": "Consent is required before sending this receipt.",
   "errors.AI_UNAVAILABLE": "AI receipt extraction is not configured.",
   "errors.AI_INVALID_RESPONSE": "The provider returned an invalid receipt proposal.",
-  "errors.AI_AMBIGUOUS_TIMEOUT": "The provider response is uncertain. Wait before trying again to avoid a duplicate charge.",
+  "errors.AI_AMBIGUOUS_TIMEOUT": "Extraction did not finish within the available time. The receipt is still saved; wait one minute and try extracting it again.",
   "errors.AI_PROVIDER_QUOTA": "The AI provider quota is unavailable right now.",
   "errors.AI_PROVIDER_RETRIABLE": "The AI provider is temporarily unavailable.",
   "errors.AI_PROVIDER_FAILED": "The AI provider could not process this receipt.",

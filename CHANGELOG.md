@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.14] - 2026-09-22
+
+### Fixed
+- Increased the default AI receipt extraction timeout from 20 to 90 seconds so full receipt images can finish processing before the request is classified as uncertain.
+- Added an explicit Vercel duration allowance for receipt extraction and clarified that timed-out receipts remain saved and can be retried.
+
+### Added
+- Added the configurable `AI_PROVIDER_TIMEOUT_MS` environment setting for hosted AI processing.
+
 ## [1.0.13] - 2026-09-22
 
 ### Added

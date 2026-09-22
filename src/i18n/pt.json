@@ -359,7 +359,7 @@
   "errors.AI_CONSENT_REQUIRED": "É necessário consentimento antes de enviar este recibo.",
   "errors.AI_UNAVAILABLE": "A extração de recibos por IA não está configurada.",
   "errors.AI_INVALID_RESPONSE": "O fornecedor devolveu uma proposta de recibo inválida.",
-  "errors.AI_AMBIGUOUS_TIMEOUT": "A resposta do fornecedor é incerta. Aguarda antes de tentar novamente para evitar um custo duplicado.",
+  "errors.AI_AMBIGUOUS_TIMEOUT": "A extração não terminou dentro do tempo disponível. O recibo continua guardado; aguarda um minuto e tenta extrair novamente.",
   "errors.AI_PROVIDER_QUOTA": "A quota do fornecedor de IA não está disponível neste momento.",
   "errors.AI_PROVIDER_RETRIABLE": "O fornecedor de IA está temporariamente indisponível.",
   "errors.AI_PROVIDER_FAILED": "O fornecedor de IA não conseguiu processar este recibo.",

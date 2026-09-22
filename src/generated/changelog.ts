@@ -12,6 +12,25 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.14",
+    "date": "2026-09-22",
+    "categories": [
+      {
+        "name": "Fixed",
+        "entries": [
+          "Increased the default AI receipt extraction timeout from 20 to 90 seconds so full receipt images can finish processing before the request is classified as uncertain.",
+          "Added an explicit Vercel duration allowance for receipt extraction and clarified that timed-out receipts remain saved and can be retried."
+        ]
+      },
+      {
+        "name": "Added",
+        "entries": [
+          "Added the configurable `AI_PROVIDER_TIMEOUT_MS` environment setting for hosted AI processing."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.13",
     "date": "2026-09-22",
     "categories": [

@@ -142,6 +142,7 @@ RATE_LIMIT_HASH_SECRET=<at-least-32-random-characters>
 INVITE_VALIDATION_MAX_ATTEMPTS=10
 PASSWORD_RESET_MAX_ATTEMPTS=5
 AI_OCR_DAILY_LIMIT=10
+AI_PROVIDER_TIMEOUT_MS=90000
 ANTHROPIC_API_KEY=
 ANTHROPIC_MODEL=
 OPENAI_API_KEY=
@@ -159,6 +160,7 @@ Notes:
 - `NEXT_PUBLIC_SITE_URL` must be one exact HTTPS origin with no path and no wildcard.
 - `SUPABASE_SECRET_KEY`, AI keys, SMTP passwords, and archive tokens are server-only.
 - AI receipt extraction is disabled unless a provider key and matching model are both set.
+- `AI_PROVIDER_TIMEOUT_MS` controls how long receipt extraction may wait for the AI provider; 90 seconds is recommended for full receipt images.
 - `EMAIL_PROVIDER=disabled` still lets admins generate/copy invite links. Set SMTP values only when you want the app to send custom invite emails.
 - If `AUDIT_ARCHIVE_URL` is empty, old audit events are deleted after the retention window.
 

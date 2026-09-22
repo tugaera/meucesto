@@ -3,6 +3,8 @@ import { loadHistoryDetail } from "@/features/history/data";
 import { HistoryDetail } from "@/features/history/history-detail";
 import { hasAiProvider } from "@/lib/env/server";
 
+export const maxDuration = 120;
+
 export default async function HistoryDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   let data;

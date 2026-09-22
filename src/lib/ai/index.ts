@@ -43,9 +43,10 @@ export async function extractReceipt(
   const anthropicModel = environment.ANTHROPIC_MODEL;
   const openAiKey = environment.OPENAI_API_KEY;
   const openAiModel = environment.OPENAI_MODEL;
+  const timeoutMs = environment.AI_PROVIDER_TIMEOUT_MS;
   if (anthropicKey && anthropicModel) {
     try {
-      const anthropic = await runProvider("anthropic", () => extractWithAnthropic({ apiKey: anthropicKey, model: anthropicModel, ...input }), record);
+      const anthropic = await runProvider("anthropic", () => extractWithAnthropic({ apiKey: anthropicKey, model: anthropicModel, timeoutMs, ...input }), record);
       return { ...anthropic, provider: "anthropic" };
     } catch (error) {
       const fallbackAllowed = error instanceof AiProviderError && error.classification === "retriable";
@@ -53,7 +54,7 @@ export async function extractReceipt(
     }
   }
   if (openAiKey && openAiModel) {
-    const openai = await runProvider("openai", () => extractWithOpenAi({ apiKey: openAiKey, model: openAiModel, ...input }), record);
+    const openai = await runProvider("openai", () => extractWithOpenAi({ apiKey: openAiKey, model: openAiModel, timeoutMs, ...input }), record);
     return { ...openai, provider: "openai" };
   }
   throw new AiProviderError("anthropic", "non_retriable", "AI_UNAVAILABLE");
