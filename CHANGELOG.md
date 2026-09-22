@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.17] - 2026-09-22
+
+### Added
+- Added a safe delete action for empty receipt-import history entries, removing associated private receipt images before deleting the empty import.
+
 ## [1.0.16] - 2026-09-22
 
 ### Changed

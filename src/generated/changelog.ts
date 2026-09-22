@@ -12,6 +12,18 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.17",
+    "date": "2026-09-22",
+    "categories": [
+      {
+        "name": "Added",
+        "entries": [
+          "Added a safe delete action for empty receipt-import history entries, removing associated private receipt images before deleting the empty import."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.16",
     "date": "2026-09-22",
     "categories": [
