@@ -3,6 +3,7 @@
 import { initialProductMutationResult } from "@/lib/actions/types";
 import { ExternalLink, ScanLine, Search, X } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/field";
@@ -48,11 +49,13 @@ export function ProductEditor({
   product = null,
   elevated,
   onClose,
+  onSaved,
 }: {
   references: ReferenceData;
   product?: ProductDetail | null;
   elevated: boolean;
   onClose?: () => void;
+  onSaved?: () => void;
 }) {
   const { t, locale } = useT();
   const [state, action] = useActionState(product ? saveCatalogProductAction : createCatalogProductAction, initialProductMutationResult);
@@ -109,8 +112,10 @@ export function ProductEditor({
   }, [references.brands, references.units]);
 
   useEffect(() => {
-    if (state.success && onClose) onClose();
-  }, [onClose, state.success]);
+    if (!state.success) return;
+    onSaved?.();
+    onClose?.();
+  }, [onClose, onSaved, state.success]);
 
   const lookupMessage = lookupStatus === "local"
     ? t("shopping.localProduct")
@@ -210,6 +215,7 @@ export function ProductEditor({
 
 export function AddProductDialog({ references, elevated }: { references: ReferenceData; elevated: boolean }) {
   const { t } = useT();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -231,7 +237,7 @@ export function AddProductDialog({ references, elevated }: { references: Referen
           <h2 id="add-product-title" className="text-lg font-bold">{t("products.add")}</h2>
           <Button variant="quiet" size="icon" onClick={close} aria-label={t("common.close")}><X className="h-5 w-5" aria-hidden /></Button>
         </header>
-        <div className="overflow-y-auto p-5"><ProductEditor references={references} elevated={elevated} onClose={close} /></div>
+        <div className="overflow-y-auto p-5"><ProductEditor references={references} elevated={elevated} onClose={close} onSaved={() => router.refresh()} /></div>
         <p className="border-t border-[var(--line)] px-5 py-3 text-xs leading-5 text-[var(--muted)]">{t("products.openFoodFactsCredit")}</p>
       </dialog>
     </>

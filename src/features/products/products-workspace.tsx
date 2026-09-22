@@ -172,6 +172,7 @@ function ProductCatalog({ initialProducts, initialCursor, query }: { initialProd
 
 export function ProductsWorkspace({ data, query, elevated, isAdmin }: { data: ProductsData; query: string; elevated: boolean; isAdmin: boolean }) {
   const { t } = useT();
+  const catalogKey = `${query}:${data.products.map((product) => product.id).join(",")}:${data.nextCursor?.id ?? "end"}`;
   return (
     <div className="grid gap-6">
       <PageHeading title={t("products.title")} description={t("products.subtitle")} action={<AddProductDialog references={data.references} elevated={elevated} />} />
@@ -181,7 +182,7 @@ export function ProductsWorkspace({ data, query, elevated, isAdmin }: { data: Pr
         <Button type="submit" variant="secondary" size="icon" aria-label={t("common.search")} title={t("common.search")}><Search className="h-5 w-5" aria-hidden /></Button>
       </form>
       <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(300px,0.8fr)]">
-        <Surface><ProductCatalog key={query} initialProducts={data.products} initialCursor={data.nextCursor} query={query} /></Surface>
+        <Surface><ProductCatalog key={catalogKey} initialProducts={data.products} initialCursor={data.nextCursor} query={query} /></Surface>
         <Surface className="lg:sticky lg:top-24"><ProductDetailPanel data={data} elevated={elevated} isAdmin={isAdmin} /></Surface>
       </div>
     </div>

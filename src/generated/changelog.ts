@@ -12,6 +12,69 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.12",
+    "date": "2026-09-22",
+    "categories": [
+      {
+        "name": "Fixed",
+        "entries": [
+          "Improved the mobile bottom navigation so inactive items show icons only and the active page keeps its text label."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "1.0.11",
+    "date": "2026-09-22",
+    "categories": [
+      {
+        "name": "Fixed",
+        "entries": [
+          "Refreshed and remounted the product catalogue after adding a product so newly created products appear without a manual page refresh."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "1.0.10",
+    "date": "2026-09-22",
+    "categories": [
+      {
+        "name": "Fixed",
+        "entries": [
+          "Kept new brands created from the shopping cart product detail flow unverified for later catalogue review, even when the shopper is an admin or moderator."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "1.0.9",
+    "date": "2026-09-22",
+    "categories": [
+      {
+        "name": "Fixed",
+        "entries": [
+          "Fixed create-product-and-add-to-cart by disambiguating cart item RPC parameters from table columns.",
+          "Kept product detail modal edits stable while submitting, closed the modal after successful add, and cleared the cart form only after the item is actually added.",
+          "Added server-side diagnostics for shopping mutations so hosted RPC failures include the failing function and database details in logs."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "1.0.8",
+    "date": "2026-09-22",
+    "categories": [
+      {
+        "name": "Fixed",
+        "entries": [
+          "Fixed shopping list item add, edit, and remove RPCs by disambiguating list and item parameters from table columns in Supabase functions.",
+          "Added server-side diagnostics for list mutations so hosted RPC failures include the failing function and database details in logs."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.7",
     "date": "2026-09-22",
     "categories": [

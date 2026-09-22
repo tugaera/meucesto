@@ -32,7 +32,7 @@ export function AppShell({ profile, children }: { profile: AppProfile; children:
           </header>
           <PullToRefresh><main className="page-enter mx-auto w-full max-w-5xl px-4 py-6 sm:px-6 md:px-8 md:py-8">{children}</main></PullToRefresh>
         </div>
-        <div className={showAdmin ? "fixed inset-x-0 bottom-0 z-40 grid grid-cols-6 border-t border-[var(--line)] bg-white pb-[env(safe-area-inset-bottom)] md:hidden" : "fixed inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t border-[var(--line)] bg-white pb-[env(safe-area-inset-bottom)] md:hidden"}><AppNavigation showAdmin={showAdmin} /></div>
+        <div className={showAdmin ? "fixed inset-x-0 bottom-0 z-40 grid min-h-[58px] grid-cols-6 border-t border-[var(--line)] bg-white pb-[env(safe-area-inset-bottom)] md:hidden" : "fixed inset-x-0 bottom-0 z-40 grid min-h-[58px] grid-cols-5 border-t border-[var(--line)] bg-white pb-[env(safe-area-inset-bottom)] md:hidden"}><AppNavigation showAdmin={showAdmin} /></div>
       </div>
     </I18nProvider>
   );

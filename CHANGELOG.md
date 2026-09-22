@@ -1,5 +1,33 @@
 # Changelog
 
+## [1.0.12] - 2026-09-22
+
+### Fixed
+- Improved the mobile bottom navigation so inactive items show icons only and the active page keeps its text label.
+
+## [1.0.11] - 2026-09-22
+
+### Fixed
+- Refreshed and remounted the product catalogue after adding a product so newly created products appear without a manual page refresh.
+
+## [1.0.10] - 2026-09-22
+
+### Fixed
+- Kept new brands created from the shopping cart product detail flow unverified for later catalogue review, even when the shopper is an admin or moderator.
+
+## [1.0.9] - 2026-09-22
+
+### Fixed
+- Fixed create-product-and-add-to-cart by disambiguating cart item RPC parameters from table columns.
+- Kept product detail modal edits stable while submitting, closed the modal after successful add, and cleared the cart form only after the item is actually added.
+- Added server-side diagnostics for shopping mutations so hosted RPC failures include the failing function and database details in logs.
+
+## [1.0.8] - 2026-09-22
+
+### Fixed
+- Fixed shopping list item add, edit, and remove RPCs by disambiguating list and item parameters from table columns in Supabase functions.
+- Added server-side diagnostics for list mutations so hosted RPC failures include the failing function and database details in logs.
+
 ## [1.0.7] - 2026-09-22
 
 ### Added
