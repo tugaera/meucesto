@@ -12,6 +12,24 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.7",
+    "date": "2026-09-22",
+    "categories": [
+      {
+        "name": "Added",
+        "entries": [
+          "Added camera barcode scanning and barcode lookup to shopping lists so scanned products can populate list item names."
+        ]
+      },
+      {
+        "name": "Fixed",
+        "entries": [
+          "Improved list item adding feedback by showing pending state, resetting the form after success, and rotating mutation IDs between successful submissions."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.6",
     "date": "2026-09-19",
     "categories": [
