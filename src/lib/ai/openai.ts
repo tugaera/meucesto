@@ -6,8 +6,8 @@ import type { ReceiptMimeType } from "@/lib/receipts/validation";
 import { RECEIPT_SYSTEM_PROMPT, RECEIPT_USER_PROMPT } from "./prompt";
 import { AiProviderError, receiptExtractionSchema, type ProviderExtractionResult } from "./types";
 
-export async function extractWithOpenAi(input: { apiKey: string; model: string; bytes: Uint8Array; mimeType: ReceiptMimeType }): Promise<ProviderExtractionResult> {
-  const client = new OpenAI({ apiKey: input.apiKey, maxRetries: 0, timeout: 20_000 });
+export async function extractWithOpenAi(input: { apiKey: string; model: string; bytes: Uint8Array; mimeType: ReceiptMimeType; timeoutMs: number }): Promise<ProviderExtractionResult> {
+  const client = new OpenAI({ apiKey: input.apiKey, maxRetries: 0, timeout: input.timeoutMs });
   try {
     const imageUrl = `data:${input.mimeType};base64,${Buffer.from(input.bytes).toString("base64")}`;
     const response = await client.responses.parse({

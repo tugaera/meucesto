@@ -7,10 +7,12 @@ import {
   historyCartDetailSchema,
   historyCartItemsSchema,
   historyRowsSchema,
+  referenceDataSchema,
   receiptMetadataListSchema,
   type HistoryCartDetail,
   type HistoryCartItem,
   type HistoryRow,
+  type ReferenceData,
   type ReceiptMetadata,
 } from "@/types/domain";
 
@@ -23,6 +25,7 @@ export interface HistoryDetailData {
   cart: HistoryCartDetail;
   items: HistoryCartItem[];
   receipts: ReceiptMetadata[];
+  references: ReferenceData;
 }
 
 async function expectRpc<T>(promise: PromiseLike<{ data: unknown; error: { message: string } | null }>, schema: z.ZodType<T>): Promise<T> {
@@ -49,10 +52,11 @@ export async function loadHistoryDetail(cartId: string): Promise<HistoryDetailDa
   const parsedId = z.uuid().safeParse(cartId);
   if (!parsedId.success) throw new Error("RESOURCE_NOT_FOUND");
   const supabase = await createClient();
-  const [cart, items, receipts] = await Promise.all([
+  const [cart, items, receipts, references] = await Promise.all([
     expectRpc(supabase.rpc("get_history_cart_detail", { cart_id: cartId }), historyCartDetailSchema),
     expectRpc(supabase.rpc("get_history_cart_items", { cart_id: cartId }), historyCartItemsSchema),
     expectRpc(supabase.rpc("get_history_cart_receipts", { cart_id: cartId }), receiptMetadataListSchema),
+    expectRpc(supabase.rpc("get_catalog_reference_data"), referenceDataSchema),
   ]);
-  return { cart, items, receipts };
+  return { cart, items, receipts, references };
 }

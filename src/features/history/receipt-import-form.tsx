@@ -14,7 +14,7 @@ import { initialReceiptImportResult } from "@/lib/actions/types";
 import { cn } from "@/lib/utils";
 import { createReceiptImportAction } from "./receipt-actions";
 
-export function ReceiptImportForm({ aiEnabled }: { aiEnabled: boolean }) {
+export function ReceiptImportForm({ aiEnabled, allowLibraryUploads }: { aiEnabled: boolean; allowLibraryUploads: boolean }) {
   const { t } = useT();
   const router = useRouter();
   const [state, action] = useActionState(createReceiptImportAction, initialReceiptImportResult);
@@ -49,7 +49,7 @@ export function ReceiptImportForm({ aiEnabled }: { aiEnabled: boolean }) {
         {!aiEnabled ? <p role="status" className="border-l-4 border-[var(--coral)] bg-[var(--coral-soft)] px-4 py-3 text-sm">{t("ai.unavailable")}</p> : null}
         <form action={action} className="grid gap-4">
           <Field label={t("history.receiptFile")} htmlFor="history-import-receipt" hint={t("history.importFileHint")}>
-            <Input id="history-import-receipt" name="receipt" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" required className="py-2" />
+            <Input id="history-import-receipt" name="receipt" type="file" accept="image/jpeg,image/png,image/webp" capture={allowLibraryUploads ? undefined : "environment"} required className="py-2" />
           </Field>
           <input type="hidden" name="cartMutationId" value={ids.cart} />
           <input type="hidden" name="receiptMutationId" value={ids.receipt} />

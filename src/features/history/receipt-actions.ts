@@ -9,7 +9,7 @@ import { toErrorCode } from "@/lib/errors";
 import { createReceiptObjectPath, processReceiptImage } from "@/lib/receipts/image-processing";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
-import { historyCartDetailSchema, receiptMetadataListSchema } from "@/types/domain";
+import { historyCartDetailSchema, historyCartItemsSchema, receiptMetadataListSchema } from "@/types/domain";
 
 interface SignedReceipt {
   id: string;
@@ -172,6 +172,36 @@ export async function deleteReceiptAction(_state: ReceiptMutationResult, formDat
   if (!z.object({ objectPath: z.string().min(1) }).safeParse(deleted.data).success) return { success: false, errorCode: "UNKNOWN" };
   revalidatePath(`/history/${parsed.data.cartId}`);
   return { success: true, data: { message: "RECEIPT_DELETED" } };
+}
+
+export async function deleteEmptyReceiptImportAction(_state: ReceiptMutationResult, formData: FormData): Promise<ReceiptMutationResult> {
+  const parsed = cartMutationSchema.safeParse(Object.fromEntries(formData.entries()));
+  if (!parsed.success) return invalid(parsed.error);
+  const { userId } = await requireUser();
+  const supabase = await createClient();
+  const [detailResult, itemsResult, receiptsResult] = await Promise.all([
+    supabase.rpc("get_history_cart_detail", { cart_id: parsed.data.cartId }),
+    supabase.rpc("get_history_cart_items", { cart_id: parsed.data.cartId }),
+    supabase.rpc("get_history_cart_receipts", { cart_id: parsed.data.cartId }),
+  ]);
+  const detail = historyCartDetailSchema.safeParse(detailResult.data);
+  const items = historyCartItemsSchema.safeParse(itemsResult.data);
+  const receipts = receiptMetadataListSchema.safeParse(receiptsResult.data);
+  if (detailResult.error || itemsResult.error || receiptsResult.error) return failed(detailResult.error ?? itemsResult.error ?? receiptsResult.error);
+  if (!detail.success || !items.success || !receipts.success) return { success: false, errorCode: "UNKNOWN" };
+  if (!detail.data.isReceiptImport || detail.data.ownerId !== userId || !detail.data.canManageReceipts || items.data.length > 0 || Number(detail.data.total) !== 0) {
+    return { success: false, errorCode: "NOT_AUTHORIZED" };
+  }
+  const objectPaths = receipts.data.map((receipt) => receipt.objectPath);
+  if (objectPaths.length > 0) {
+    const removed = await createAdminClient().storage.from("receipts").remove(objectPaths);
+    if (removed.error) return failed(removed.error);
+  }
+  const deleted = await supabase.rpc("delete_empty_receipt_import_cart", { cart_id: parsed.data.cartId, mutation_id: parsed.data.mutationId });
+  if (deleted.error) return failed(deleted.error);
+  revalidatePath("/history");
+  revalidatePath(`/history/${parsed.data.cartId}`);
+  return { success: true, data: { message: "RECEIPT_IMPORT_DELETED" } };
 }
 
 export async function reorderReceiptsAction(formData: FormData): Promise<void> {

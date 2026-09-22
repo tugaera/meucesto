@@ -1,5 +1,49 @@
 # Changelog
 
+## [1.0.21] - 2026-09-23
+
+### Added
+- Added an optional per-line product workflow during receipt import review, letting users create catalogue product details from an extracted line while still keeping simple history-only lines possible.
+
+## [1.0.20] - 2026-09-23
+
+### Added
+- Added `RECEIPT_ALLOW_LIBRARY_UPLOADS` so deployments can opt into choosing existing receipt images instead of forcing camera capture only.
+
+## [1.0.19] - 2026-09-23
+
+### Changed
+- Reworked receipt-import review so extracted lines can be selected with checkboxes, bulk selected or deselected, and edited for name, quantity, unit price, total, and barcode before saving.
+
+## [1.0.18] - 2026-09-23
+
+### Changed
+- Moved the AI extraction and review controls above the receipt preview for pending receipt imports so first-time imports show the next action immediately.
+
+## [1.0.17] - 2026-09-22
+
+### Added
+- Added a safe delete action for empty receipt-import history entries, removing associated private receipt images before deleting the empty import.
+
+## [1.0.16] - 2026-09-22
+
+### Changed
+- Clarified receipt-first history imports so uploaded receipts are described as pending extraction and unmatched extracted lines are shown as new receipt lines instead of missing basket matches.
+
+## [1.0.15] - 2026-09-22
+
+### Changed
+- Improved the AI receipt review layout so extracted items use readable review cards, clearer keep/ignore actions, progress feedback, and wider receipt-import space on desktop.
+
+## [1.0.14] - 2026-09-22
+
+### Fixed
+- Increased the default AI receipt extraction timeout from 20 to 90 seconds so full receipt images can finish processing before the request is classified as uncertain.
+- Added an explicit Vercel duration allowance for receipt extraction and clarified that timed-out receipts remain saved and can be retried.
+
+### Added
+- Added the configurable `AI_PROVIDER_TIMEOUT_MS` environment setting for hosted AI processing.
+
 ## [1.0.13] - 2026-09-22
 
 ### Added

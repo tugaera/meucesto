@@ -11,7 +11,8 @@ import { SubmitButton } from "@/components/ui/submit-button";
 import { dictionaries, type TranslationKey } from "@/i18n";
 import { useT } from "@/i18n/provider";
 import { useMutationId } from "@/lib/actions/use-mutation-id";
-import type { ReceiptMetadata } from "@/types/domain";
+import { cn } from "@/lib/utils";
+import type { ReceiptMetadata, ReferenceData } from "@/types/domain";
 import { AiReceiptImport } from "./ai-receipt-import";
 import {
   deleteReceiptAction, getReceiptSignedUrlsAction, reorderReceiptsAction, uploadReceiptAction, type ReceiptMutationResult } from "./receipt-actions";
@@ -55,7 +56,7 @@ function ReceiptReorder({ cartId, orderedIds, direction }: { cartId: string; ord
   );
 }
 
-export function ReceiptPanel({ cartId, receipts, canManage, aiEnabled, isReceiptImport = false, receiptImportCompleted = false }: { cartId: string; receipts: ReceiptMetadata[]; canManage: boolean; aiEnabled: boolean; isReceiptImport?: boolean; receiptImportCompleted?: boolean }) {
+export function ReceiptPanel({ cartId, receipts, references, canManage, aiEnabled, allowLibraryUploads, isReceiptImport = false, receiptImportCompleted = false }: { cartId: string; receipts: ReceiptMetadata[]; references: ReferenceData; canManage: boolean; aiEnabled: boolean; allowLibraryUploads: boolean; isReceiptImport?: boolean; receiptImportCompleted?: boolean }) {
   const { t, locale } = useT();
   const [uploadState, uploadAction] = useActionState(uploadReceiptAction, initialReceiptMutationResult);
   const [signedState, signedAction] = useActionState(getReceiptSignedUrlsAction, initialSignedReceiptResult);
@@ -72,7 +73,7 @@ export function ReceiptPanel({ cartId, receipts, canManage, aiEnabled, isReceipt
       {signedState.success && expiry ? <p className="text-xs text-[var(--muted)]">{t("history.signedExpiry", { time: new Intl.DateTimeFormat(locale === "pt" ? "pt-PT" : "en-GB", { timeStyle: "short" }).format(new Date(expiry)) })}</p> : null}
       {!signedState.success && signedState.errorCode !== "IDLE" ? <p role="alert" className="border border-red-200 bg-[var(--coral-soft)] p-3 text-sm text-red-900">{t("errors.UNKNOWN")}</p> : null}
       {receipts.length ? (
-        <ol className="grid gap-4 sm:grid-cols-2">
+        <ol className={cn("grid gap-4", isReceiptImport && !receiptImportCompleted ? "grid-cols-1" : "sm:grid-cols-2")}>
           {receipts.map((receipt, index) => {
             const signed = signedById.get(receipt.id);
             const previous = receipts[index - 1];
@@ -81,7 +82,8 @@ export function ReceiptPanel({ cartId, receipts, canManage, aiEnabled, isReceipt
             const later = next ? [...receipts.map((item) => item.id).slice(0, index), next.id, receipt.id, ...receipts.map((item) => item.id).slice(index + 2)] : null;
             return (
               <li key={receipt.id} className="border border-[var(--line)] bg-gray-50">
-                <div className="flex aspect-[4/5] items-center justify-center overflow-hidden bg-gray-100">
+                {aiEnabled && !receiptImportCompleted && isReceiptImport ? <AiReceiptImport cartId={cartId} receiptId={receipt.id} references={references} isReceiptImport /> : null}
+                <div className={cn("flex items-center justify-center overflow-hidden bg-gray-100", isReceiptImport && !receiptImportCompleted ? "aspect-[16/10]" : "aspect-[4/5]")}>
                   {signed ? <Image src={signed.url} width={receipt.width ?? 1200} height={receipt.height ?? 1500} unoptimized alt={t("history.receiptAlt", { number: index + 1 })} className="h-full w-full object-contain" /> : <FileImage className="h-10 w-10 text-gray-400" aria-hidden />}
                 </div>
                 {canManage ? <div className="flex items-center justify-end border-t border-[var(--line)] bg-white p-1">
@@ -89,7 +91,7 @@ export function ReceiptPanel({ cartId, receipts, canManage, aiEnabled, isReceipt
                   <ReceiptReorder key={`${receipt.id}:later:${later?.join(":") ?? ""}`} cartId={cartId} orderedIds={later} direction="later" />
                   <ReceiptDelete cartId={cartId} receiptId={receipt.id} />
                 </div> : null}
-                {aiEnabled && !receiptImportCompleted ? <AiReceiptImport cartId={cartId} receiptId={receipt.id} isReceiptImport={isReceiptImport} /> : null}
+                {aiEnabled && !receiptImportCompleted && !isReceiptImport ? <AiReceiptImport cartId={cartId} receiptId={receipt.id} references={references} isReceiptImport={isReceiptImport} /> : null}
               </li>
             );
           })}
@@ -99,7 +101,7 @@ export function ReceiptPanel({ cartId, receipts, canManage, aiEnabled, isReceipt
       {canManage ? (
         <form action={uploadAction} className="grid gap-3 border-t border-[var(--line)] pt-5">
           <Field label={t("history.receiptFile")} htmlFor="receipt-file">
-            <Input id="receipt-file" name="receipt" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" required className="py-2" />
+            <Input id="receipt-file" name="receipt" type="file" accept="image/jpeg,image/png,image/webp" capture={allowLibraryUploads ? undefined : "environment"} required className="py-2" />
           </Field>
           <input type="hidden" name="cartId" value={cartId} />
           <input type="hidden" name="mutationId" value={uploadMutationId} />

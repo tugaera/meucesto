@@ -100,6 +100,7 @@ export type Database = {
       create_receipt_metadata: Rpc<{ cart_id: string; metadata: Json; mutation_id: string }>;
       reorder_receipts: Rpc<{ cart_id: string; ordered_ids: string[]; mutation_id: string }>;
       delete_receipt: Rpc<{ cart_id: string; receipt_id: string; mutation_id: string }>;
+      delete_empty_receipt_import_cart: Rpc<{ cart_id: string; mutation_id: string }>;
       get_catalog_reference_data: Rpc;
       search_products: Rpc<{ search_text?: string; barcode?: string; cursor_name?: string; cursor_id?: string; page_size?: number; include_inactive?: boolean }>;
       get_product_detail: Rpc<{ product_id: string }>;

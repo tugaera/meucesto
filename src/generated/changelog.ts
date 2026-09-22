@@ -12,6 +12,109 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.21",
+    "date": "2026-09-23",
+    "categories": [
+      {
+        "name": "Added",
+        "entries": [
+          "Added an optional per-line product workflow during receipt import review, letting users create catalogue product details from an extracted line while still keeping simple history-only lines possible."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "1.0.20",
+    "date": "2026-09-23",
+    "categories": [
+      {
+        "name": "Added",
+        "entries": [
+          "Added `RECEIPT_ALLOW_LIBRARY_UPLOADS` so deployments can opt into choosing existing receipt images instead of forcing camera capture only."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "1.0.19",
+    "date": "2026-09-23",
+    "categories": [
+      {
+        "name": "Changed",
+        "entries": [
+          "Reworked receipt-import review so extracted lines can be selected with checkboxes, bulk selected or deselected, and edited for name, quantity, unit price, total, and barcode before saving."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "1.0.18",
+    "date": "2026-09-23",
+    "categories": [
+      {
+        "name": "Changed",
+        "entries": [
+          "Moved the AI extraction and review controls above the receipt preview for pending receipt imports so first-time imports show the next action immediately."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "1.0.17",
+    "date": "2026-09-22",
+    "categories": [
+      {
+        "name": "Added",
+        "entries": [
+          "Added a safe delete action for empty receipt-import history entries, removing associated private receipt images before deleting the empty import."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "1.0.16",
+    "date": "2026-09-22",
+    "categories": [
+      {
+        "name": "Changed",
+        "entries": [
+          "Clarified receipt-first history imports so uploaded receipts are described as pending extraction and unmatched extracted lines are shown as new receipt lines instead of missing basket matches."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "1.0.15",
+    "date": "2026-09-22",
+    "categories": [
+      {
+        "name": "Changed",
+        "entries": [
+          "Improved the AI receipt review layout so extracted items use readable review cards, clearer keep/ignore actions, progress feedback, and wider receipt-import space on desktop."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "1.0.14",
+    "date": "2026-09-22",
+    "categories": [
+      {
+        "name": "Fixed",
+        "entries": [
+          "Increased the default AI receipt extraction timeout from 20 to 90 seconds so full receipt images can finish processing before the request is classified as uncertain.",
+          "Added an explicit Vercel duration allowance for receipt extraction and clarified that timed-out receipts remain saved and can be retried."
+        ]
+      },
+      {
+        "name": "Added",
+        "entries": [
+          "Added the configurable `AI_PROVIDER_TIMEOUT_MS` environment setting for hosted AI processing."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.13",
     "date": "2026-09-22",
     "categories": [
