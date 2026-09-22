@@ -12,6 +12,19 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.8",
+    "date": "2026-09-22",
+    "categories": [
+      {
+        "name": "Fixed",
+        "entries": [
+          "Fixed shopping list item add, edit, and remove RPCs by disambiguating list and item parameters from table columns in Supabase functions.",
+          "Added server-side diagnostics for list mutations so hosted RPC failures include the failing function and database details in logs."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.7",
     "date": "2026-09-22",
     "categories": [
