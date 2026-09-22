@@ -18,7 +18,7 @@ export function HistoryDetail({ data, aiEnabled }: { data: HistoryDetailData; ai
     <div className="grid gap-6">
       <Link href="/history" className={cn(buttonVariants({ variant: "quiet", size: "compact" }), "w-fit px-0")}><ArrowLeft className="h-4 w-4" aria-hidden />{t("common.back")}</Link>
       <PageHeading title={data.cart.store?.name ?? t("history.detail")} description={t("history.finalizedAt", { date })} />
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(300px,0.72fr)]">
+      <div className={cn("grid items-start gap-5", data.cart.isReceiptImport && !data.items.length ? "xl:grid-cols-[minmax(0,0.72fr)_minmax(420px,1fr)]" : "lg:grid-cols-[minmax(0,1fr)_minmax(300px,0.72fr)]")}>
         <Surface>
           <header className="grid grid-cols-2 gap-3 border-b border-[var(--line)] p-4 sm:p-5">
             <div><p className="text-xs font-semibold uppercase text-[var(--muted)]">{t("history.owner", { email: data.cart.ownerEmail })}</p><p className="mt-2 flex items-center gap-2 text-sm"><CalendarDays className="h-4 w-4" aria-hidden />{date}</p></div>

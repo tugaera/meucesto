@@ -12,6 +12,18 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.15",
+    "date": "2026-09-22",
+    "categories": [
+      {
+        "name": "Changed",
+        "entries": [
+          "Improved the AI receipt review layout so extracted items use readable review cards, clearer keep/ignore actions, progress feedback, and wider receipt-import space on desktop."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.14",
     "date": "2026-09-22",
     "categories": [

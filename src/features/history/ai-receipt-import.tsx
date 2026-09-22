@@ -13,6 +13,7 @@ import { useT } from "@/i18n/provider";
 import { useMutationId } from "@/lib/actions/use-mutation-id";
 import type { ReceiptReview } from "@/lib/ai/types";
 import { formatMoney } from "@/lib/money";
+import { cn } from "@/lib/utils";
 import { extractReceiptAction, recordAiReviewDecisionAction } from "./ai-actions";
 
 type Decision = "accepted" | "rejected";
@@ -44,11 +45,13 @@ function ReviewDecisionForm({ cartId, receiptId, review, decisions, isReceiptImp
   const errorKey = !state.success && state.errorCode !== "IDLE"
     ? (`errors.${state.errorCode}` in dictionaries.en ? `errors.${state.errorCode}` as TranslationKey : "errors.UNKNOWN")
     : null;
+  const acceptedCount = acceptedItems.length;
+  const rejectedCount = submitted.filter((item) => item.decision === "rejected").length;
   useEffect(() => {
     if (state.success && isReceiptImport) router.refresh();
   }, [isReceiptImport, router, state]);
   return (
-    <form action={action} className="grid gap-2">
+    <form action={action} className="grid gap-3 border-t border-[var(--line)] pt-4">
       <input type="hidden" name="cartId" value={cartId} />
       <input type="hidden" name="receiptId" value={receiptId} />
       <input type="hidden" name="requestId" value={review.requestId} />
@@ -57,6 +60,7 @@ function ReviewDecisionForm({ cartId, receiptId, review, decisions, isReceiptImp
       <input type="hidden" name="decisions" value={JSON.stringify(submitted)} />
       <input type="hidden" name="receiptImport" value={isReceiptImport ? "true" : "false"} />
       {isReceiptImport ? <input type="hidden" name="importData" value={JSON.stringify(importData)} /> : null}
+      <p className="text-sm font-semibold text-[var(--ink)]">{t("ai.reviewProgress", { accepted: acceptedCount, rejected: rejectedCount, total: review.items.length })}</p>
       {state.success ? <p role="status" className="text-sm font-semibold text-emerald-800">{t(isReceiptImport ? "ai.importSaved" : "ai.reviewSaved")}</p> : null}
       {errorKey ? <p role="alert" className="border border-red-200 bg-[var(--coral-soft)] p-3 text-sm text-red-900">{t(errorKey)}</p> : null}
       <SubmitButton disabled={!complete || state.success || (isReceiptImport && acceptedItems.length === 0)}><Check className="h-4 w-4" aria-hidden />{t(isReceiptImport ? "ai.saveImport" : "common.save")}</SubmitButton>
@@ -85,15 +89,28 @@ export function AiReceiptImport({ cartId, receiptId, isReceiptImport = false }: 
           <SubmitButton><Sparkles className="h-4 w-4" aria-hidden />{t("ai.extract")}</SubmitButton>
         </form>
         {review ? (
-          <section aria-labelledby={`ai-review-${receiptId}`} className="grid gap-3">
-            <div className="flex flex-wrap items-center justify-between gap-2"><h3 id={`ai-review-${receiptId}`} className="font-bold">{t("ai.review")}</h3><Button variant="secondary" size="compact" onClick={() => setDecisions(Object.fromEntries(review.items.map((_, index) => [index, "accepted"]))) }><Check className="h-4 w-4" aria-hidden />{t("ai.acceptAll")}</Button></div>
+          <section aria-labelledby={`ai-review-${receiptId}`} className="grid gap-4">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h3 id={`ai-review-${receiptId}`} className="font-bold">{t("ai.review")}</h3>
+                <p className="mt-1 text-xs leading-5 text-[var(--muted)]">{t("ai.reviewSummary", { count: review.items.length, total: review.total ? formatMoney(review.total, locale) : "?" })}</p>
+              </div>
+              <Button variant="secondary" size="compact" className="h-auto min-h-10 px-3 py-2 text-left text-xs sm:text-sm" onClick={() => setDecisions(Object.fromEntries(review.items.map((_, index) => [index, "accepted"])))}><Check className="h-4 w-4 shrink-0" aria-hidden />{t(isReceiptImport ? "ai.keepAll" : "ai.acceptAll")}</Button>
+            </div>
             <p className="text-xs leading-5 text-[var(--muted)]">{t(isReceiptImport ? "ai.importReviewHelp" : "ai.proposalOnly")}</p>
-            <ol className="divide-y divide-[var(--line)] border-y border-[var(--line)]">
+            <ol className="grid gap-3">
               {review.items.map((item, index) => (
-                <li key={`${item.name}-${index}`} className="grid gap-2 py-3">
-                  <div className="flex items-start justify-between gap-3"><div><p className="text-sm font-semibold">{item.name}</p><p className="mt-1 text-xs text-[var(--muted)]">{item.quantity} × {item.unitPrice ? formatMoney(item.unitPrice, locale) : "?"}</p></div><p className="text-sm font-bold">{formatMoney(item.lineTotal, locale)}</p></div>
+                <li key={`${item.name}-${index}`} className={cn("grid gap-3 border p-3", decisions[index] === "accepted" ? "border-[var(--emerald)] bg-emerald-50/60" : decisions[index] === "rejected" ? "border-red-200 bg-red-50/60" : "border-[var(--line)] bg-white")}>
+                  <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start">
+                    <div className="min-w-0">
+                      <p className="break-words text-sm font-semibold leading-5">{item.name}</p>
+                      <p className="mt-1 text-xs text-[var(--muted)]">{t("ai.quantityPrice", { quantity: item.quantity, price: item.unitPrice ? formatMoney(item.unitPrice, locale) : "?" })}</p>
+                      {item.barcode ? <p className="mt-1 text-[11px] text-gray-500">{t("shopping.barcode")}: {item.barcode}</p> : null}
+                    </div>
+                    <p className="text-base font-bold text-[var(--ink)] sm:text-right">{formatMoney(item.lineTotal, locale)}</p>
+                  </div>
                   {item.flags.length ? <div className="flex flex-wrap gap-1.5">{item.flags.map((flag) => <Badge key={flag} tone={flag === "no_match" ? "warning" : "info"}>{t(flag === "no_match" ? "ai.noMatch" : flag === "price_differs" ? "ai.priceDiffers" : "ai.quantityDiffers")}</Badge>)}</div> : null}
-                  <div className="grid grid-cols-2 gap-2" role="group" aria-label={t("ai.item")}><Button size="compact" variant={decisions[index] === "accepted" ? "primary" : "secondary"} onClick={() => setDecisions((current) => ({ ...current, [index]: "accepted" }))}><Check className="h-4 w-4" aria-hidden />{t("ai.accept")}</Button><Button size="compact" variant={decisions[index] === "rejected" ? "danger" : "secondary"} onClick={() => setDecisions((current) => ({ ...current, [index]: "rejected" }))}><X className="h-4 w-4" aria-hidden />{t("ai.reject")}</Button></div>
+                  <div className="grid gap-2 sm:grid-cols-2" role="group" aria-label={t("ai.item")}><Button size="compact" className="h-auto min-h-10 px-3 py-2 text-xs sm:text-sm" variant={decisions[index] === "accepted" ? "primary" : "secondary"} onClick={() => setDecisions((current) => ({ ...current, [index]: "accepted" }))}><Check className="h-4 w-4 shrink-0" aria-hidden />{t(isReceiptImport ? "ai.keepLine" : "ai.accept")}</Button><Button size="compact" className="h-auto min-h-10 px-3 py-2 text-xs sm:text-sm" variant={decisions[index] === "rejected" ? "danger" : "secondary"} onClick={() => setDecisions((current) => ({ ...current, [index]: "rejected" }))}><X className="h-4 w-4 shrink-0" aria-hidden />{t(isReceiptImport ? "ai.ignoreLine" : "ai.reject")}</Button></div>
                 </li>
               ))}
             </ol>

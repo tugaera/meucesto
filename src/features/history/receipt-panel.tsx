@@ -11,6 +11,7 @@ import { SubmitButton } from "@/components/ui/submit-button";
 import { dictionaries, type TranslationKey } from "@/i18n";
 import { useT } from "@/i18n/provider";
 import { useMutationId } from "@/lib/actions/use-mutation-id";
+import { cn } from "@/lib/utils";
 import type { ReceiptMetadata } from "@/types/domain";
 import { AiReceiptImport } from "./ai-receipt-import";
 import {
@@ -72,7 +73,7 @@ export function ReceiptPanel({ cartId, receipts, canManage, aiEnabled, isReceipt
       {signedState.success && expiry ? <p className="text-xs text-[var(--muted)]">{t("history.signedExpiry", { time: new Intl.DateTimeFormat(locale === "pt" ? "pt-PT" : "en-GB", { timeStyle: "short" }).format(new Date(expiry)) })}</p> : null}
       {!signedState.success && signedState.errorCode !== "IDLE" ? <p role="alert" className="border border-red-200 bg-[var(--coral-soft)] p-3 text-sm text-red-900">{t("errors.UNKNOWN")}</p> : null}
       {receipts.length ? (
-        <ol className="grid gap-4 sm:grid-cols-2">
+        <ol className={cn("grid gap-4", isReceiptImport && !receiptImportCompleted ? "grid-cols-1" : "sm:grid-cols-2")}>
           {receipts.map((receipt, index) => {
             const signed = signedById.get(receipt.id);
             const previous = receipts[index - 1];

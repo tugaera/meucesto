@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.15] - 2026-09-22
+
+### Changed
+- Improved the AI receipt review layout so extracted items use readable review cards, clearer keep/ignore actions, progress feedback, and wider receipt-import space on desktop.
+
 ## [1.0.14] - 2026-09-22
 
 ### Fixed
