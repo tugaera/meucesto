@@ -14,7 +14,12 @@ export type CartMutationResult = ActionResult<{ data: Json; message: string }>;
 
 function values(formData: FormData): Record<string, FormDataEntryValue> { return Object.fromEntries(formData.entries()); }
 function invalid(error: z.ZodError): CartMutationResult { return { success: false, errorCode: "VALIDATION_ERROR", fieldErrors: error.flatten().fieldErrors as FieldErrors }; }
-function failed(error: unknown): CartMutationResult { return { success: false, errorCode: toErrorCode(error) }; }
+function failed(name: string, error: unknown): CartMutationResult {
+  const errorCode = toErrorCode(error);
+  const candidate = error as { code?: string; message?: string; details?: string; hint?: string };
+  console.error("Shopping action RPC failed", { name, errorCode, code: candidate.code, message: candidate.message, details: candidate.details, hint: candidate.hint });
+  return { success: false, errorCode };
+}
 function mutationId(value: string | undefined): string { return z.uuid().safeParse(value).success ? value as string : crypto.randomUUID(); }
 
 const resourceSchema = z.object({ cartId: z.uuid(), mutationId: z.string().optional() });
@@ -24,7 +29,7 @@ export async function setCartStoreAction(_state: CartMutationResult, formData: F
   if (!parsed.success) return invalid(parsed.error);
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("set_cart_store", { cart_id: parsed.data.cartId, store_id: parsed.data.storeId || null, expected_revision: parsed.data.revision, mutation_id: mutationId(parsed.data.mutationId) });
-  if (error) return failed(error);
+  if (error) return failed("set_cart_store", error);
   revalidatePath("/shopping");
   return { success: true, data: { data, message: "STORE_UPDATED" } };
 }
@@ -48,7 +53,7 @@ export async function addCartItemAction(_state: CartMutationResult, formData: Fo
     expected_revision: parsed.data.revision,
     mutation_id: mutationId(parsed.data.mutationId),
   });
-  if (error) return failed(error);
+  if (error) return failed("add_or_merge_cart_item", error);
   revalidatePath("/shopping");
   return { success: true, data: { data, message: "ITEM_ADDED" } };
 }
@@ -62,7 +67,7 @@ export async function updateCartItemAction(_state: CartMutationResult, formData:
   if (price === null || quantity === null || (parsed.data.originalPrice && originalPrice === null)) return { success: false, errorCode: "VALIDATION_ERROR" };
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("update_cart_item", { cart_id: parsed.data.cartId, item_id: parsed.data.itemId, updates: { name: parsed.data.name, price, originalPrice, quantity }, expected_item_revision: parsed.data.itemRevision, mutation_id: mutationId(parsed.data.mutationId) });
-  if (error) return failed(error);
+  if (error) return failed("update_cart_item", error);
   revalidatePath("/shopping");
   return { success: true, data: { data, message: "ITEM_UPDATED" } };
 }
@@ -72,7 +77,7 @@ export async function deleteCartItemAction(_state: CartMutationResult, formData:
   if (!parsed.success) return invalid(parsed.error);
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("delete_cart_item", { cart_id: parsed.data.cartId, item_id: parsed.data.itemId, expected_item_revision: parsed.data.itemRevision, mutation_id: mutationId(parsed.data.mutationId) });
-  if (error) return failed(error);
+  if (error) return failed("delete_cart_item", error);
   revalidatePath("/shopping");
   return { success: true, data: { data, message: "ITEM_DELETED" } };
 }
@@ -82,7 +87,7 @@ export async function finalizeCartAction(_state: CartMutationResult, formData: F
   if (!parsed.success) return invalid(parsed.error);
   const supabase = await createClient();
   const { error } = await supabase.rpc("finalize_cart", { cart_id: parsed.data.cartId, idempotency_key: parsed.data.checkoutKey, mutation_id: mutationId(parsed.data.mutationId) });
-  if (error) return failed(error);
+  if (error) return failed("finalize_cart", error);
   redirect(`/history/${parsed.data.cartId}?completed=1`);
 }
 
@@ -91,7 +96,7 @@ export async function shareCartAction(_state: CartMutationResult, formData: Form
   if (!parsed.success) return invalid(parsed.error);
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("share_cart_with_email", { cart_id: parsed.data.cartId, email: parsed.data.email, mutation_id: mutationId(parsed.data.mutationId) });
-  if (error) return failed(error);
+  if (error) return failed("share_cart_with_email", error);
   revalidatePath("/shopping");
   return { success: true, data: { data, message: "MEMBER_ADDED" } };
 }
@@ -101,7 +106,7 @@ export async function revokeCartShareAction(_state: CartMutationResult, formData
   if (!parsed.success) return invalid(parsed.error);
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("revoke_cart_share", { cart_id: parsed.data.cartId, member_user_id: parsed.data.userId, mutation_id: mutationId(parsed.data.mutationId) });
-  if (error) return failed(error);
+  if (error) return failed("revoke_cart_share", error);
   revalidatePath("/shopping");
   return { success: true, data: { data, message: "MEMBER_REVOKED" } };
 }
@@ -113,7 +118,7 @@ export async function rotateCartJoinTokenAction(_state: CartMutationResult, form
   if (maximum !== null && (!Number.isInteger(maximum) || maximum < 1 || maximum > 100)) return { success: false, errorCode: "VALIDATION_ERROR" };
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("create_or_rotate_cart_join_token", { cart_id: parsed.data.cartId, expires_at: new Date(Date.now() + 7 * 86_400_000).toISOString(), max_uses: maximum, mutation_id: mutationId(parsed.data.mutationId) });
-  if (error) return failed(error);
+  if (error) return failed("create_or_rotate_cart_join_token", error);
   return { success: true, data: { data, message: "TOKEN_CREATED" } };
 }
 
@@ -122,7 +127,7 @@ export async function attachTrackingListAction(_state: CartMutationResult, formD
   if (!parsed.success) return invalid(parsed.error);
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("attach_tracking_list", { cart_id: parsed.data.cartId, list_id: parsed.data.listId || null, expected_revision: parsed.data.revision, mutation_id: mutationId(parsed.data.mutationId) });
-  if (error) return failed(error);
+  if (error) return failed("attach_tracking_list", error);
   revalidatePath("/shopping");
   return { success: true, data: { data, message: "TRACKING_UPDATED" } };
 }
@@ -132,7 +137,7 @@ export async function leaveSharedCartAction(_state: CartMutationResult, formData
   if (!parsed.success) return invalid(parsed.error);
   const supabase = await createClient();
   const { error } = await supabase.rpc("leave_shared_cart", { cart_id: parsed.data.cartId, mutation_id: mutationId(parsed.data.mutationId) });
-  if (error) return failed(error);
+  if (error) return failed("leave_shared_cart", error);
   redirect("/shopping");
 }
 
@@ -141,7 +146,7 @@ export async function deleteActiveCartAction(_state: CartMutationResult, formDat
   if (!parsed.success) return invalid(parsed.error);
   const supabase = await createClient();
   const { error } = await supabase.rpc("delete_active_cart", { cart_id: parsed.data.cartId, mutation_id: mutationId(parsed.data.mutationId) });
-  if (error) return failed(error);
+  if (error) return failed("delete_active_cart", error);
   redirect("/shopping");
 }
 
@@ -165,7 +170,7 @@ export async function createProductAndAddAction(_state: CartMutationResult, form
     const brandResult = profile.role === "user"
       ? await supabase.rpc("get_or_create_unverified_brand", { name: parsed.data.newBrandName, mutation_id: mutationId(parsed.data.brandMutationId) })
       : await supabase.rpc("catalog_save_brand", { brand_id: null, name: parsed.data.newBrandName, is_active: true, is_verified: true, mutation_id: mutationId(parsed.data.brandMutationId) });
-    if (brandResult.error) return failed(brandResult.error);
+    if (brandResult.error) return failed(profile.role === "user" ? "get_or_create_unverified_brand" : "catalog_save_brand", brandResult.error);
     brandId = typeof brandResult.data === "object" && brandResult.data !== null && "id" in brandResult.data && typeof brandResult.data.id === "string" ? brandResult.data.id : null;
     if (!brandId) return { success: false, errorCode: "UNKNOWN" };
   }
@@ -179,7 +184,7 @@ export async function createProductAndAddAction(_state: CartMutationResult, form
     },
     mutation_id: productMutationId,
   });
-  if (productResult.error) return failed(productResult.error);
+  if (productResult.error) return failed("create_product", productResult.error);
   const productId = typeof productResult.data === "object" && productResult.data !== null && "id" in productResult.data && typeof productResult.data.id === "string" ? productResult.data.id : null;
   if (!productId) return { success: false, errorCode: "UNKNOWN" };
   const cartResult = await supabase.rpc("add_or_merge_cart_item", {
@@ -188,7 +193,7 @@ export async function createProductAndAddAction(_state: CartMutationResult, form
     expected_revision: parsed.data.revision,
     mutation_id: mutationId(parsed.data.mutationId),
   });
-  if (cartResult.error) return failed(cartResult.error);
+  if (cartResult.error) return failed("add_or_merge_cart_item", cartResult.error);
   revalidatePath("/shopping");
   return { success: true, data: { data: cartResult.data, message: "PRODUCT_AND_ITEM_ADDED" } };
 }

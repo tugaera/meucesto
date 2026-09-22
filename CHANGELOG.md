@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.9] - 2026-09-22
+
+### Fixed
+- Fixed create-product-and-add-to-cart by disambiguating cart item RPC parameters from table columns.
+- Kept product detail modal edits stable while submitting, closed the modal after successful add, and cleared the cart form only after the item is actually added.
+- Added server-side diagnostics for shopping mutations so hosted RPC failures include the failing function and database details in logs.
+
 ## [1.0.8] - 2026-09-22
 
 ### Fixed
