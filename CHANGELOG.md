@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.7] - 2026-09-22
+
+### Added
+- Added camera barcode scanning and barcode lookup to shopping lists so scanned products can populate list item names.
+
+### Fixed
+- Improved list item adding feedback by showing pending state, resetting the form after success, and rotating mutation IDs between successful submissions.
+
 ## [1.0.6] - 2026-09-19
 
 ### Added
