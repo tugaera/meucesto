@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.11] - 2026-09-22
+
+### Fixed
+- Refreshed and remounted the product catalogue after adding a product so newly created products appear without a manual page refresh.
+
 ## [1.0.10] - 2026-09-22
 
 ### Fixed

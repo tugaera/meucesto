@@ -12,6 +12,18 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.11",
+    "date": "2026-09-22",
+    "categories": [
+      {
+        "name": "Fixed",
+        "entries": [
+          "Refreshed and remounted the product catalogue after adding a product so newly created products appear without a manual page refresh."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.10",
     "date": "2026-09-22",
     "categories": [
