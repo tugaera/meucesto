@@ -14,6 +14,7 @@ import { enqueueCartDelete, enqueueCartUpdate } from "@/lib/offline/queue";
 import { colorForUser } from "@/lib/user-colors";
 import type { CartItem } from "@/types/domain";
 import { deleteCartItemAction, updateCartItemAction } from "./actions";
+import { DiscountFields } from "./discount-fields";
 import { MutationFeedback } from "./mutation-feedback";
 
 function localized(value: string, locale: "pt" | "en"): string { return locale === "pt" ? value.replace(".", ",") : value; }
@@ -21,6 +22,8 @@ function localized(value: string, locale: "pt" | "en"): string { return locale =
 export function CartItemRow({ item, cartId, userId, editable }: { item: CartItem; cartId: string; userId: string; editable: boolean }) {
   const { t, locale } = useT();
   const [quantity, setQuantity] = useState(item.quantity);
+  const [price, setPrice] = useState(localized(item.price, locale));
+  const [originalPrice, setOriginalPrice] = useState(item.originalPrice ? localized(item.originalPrice, locale) : "");
   const [updateState, updateAction] = useActionState(updateCartItemAction, initialCartMutationResult);
   const [deleteState, deleteAction] = useActionState(deleteCartItemAction, initialCartMutationResult);
   const [updateMutationId] = useState(() => crypto.randomUUID());
@@ -71,7 +74,7 @@ export function CartItemRow({ item, cartId, userId, editable }: { item: CartItem
             <form action={updateAction} onSubmit={queueUpdateWhenOffline} className="grid gap-3">
               <input type="hidden" name="cartId" value={cartId} /><input type="hidden" name="itemId" value={item.id} /><input type="hidden" name="itemRevision" value={item.revision} /><input type="hidden" name="locale" value={locale} /><input type="hidden" name="mutationId" value={updateMutationId ?? ""} />
               <Input name="name" defaultValue={item.name} aria-label={t("shopping.productName")} required />
-              <div className="grid grid-cols-2 gap-2"><Input name="price" defaultValue={localized(item.price, locale)} inputMode="decimal" aria-label={t("shopping.price")} required /><Input name="originalPrice" defaultValue={item.originalPrice ? localized(item.originalPrice, locale) : ""} inputMode="decimal" aria-label={t("shopping.originalPrice")} /></div>
+              <DiscountFields idPrefix={`cart-item-${item.id}`} price={price} originalPrice={originalPrice} onPriceChange={setPrice} onOriginalPriceChange={setOriginalPrice} priceLabel={t("shopping.price")} required />
               <div className="flex gap-2"><Button type="button" size="icon" variant="secondary" onClick={() => adjust(-1)} aria-label="-1"><Minus className="h-4 w-4" aria-hidden /></Button><Input name="quantity" value={localized(quantity, locale)} onChange={(event) => setQuantity(event.target.value.replace(",", "."))} inputMode="decimal" aria-label={t("shopping.quantity")} className="text-center" required /><Button type="button" size="icon" variant="secondary" onClick={() => adjust(1)} aria-label="+1"><Plus className="h-4 w-4" aria-hidden /></Button></div>
               <Button type="submit" className="justify-self-end">{t("common.save")}</Button>
             </form>

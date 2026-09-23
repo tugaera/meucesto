@@ -14,6 +14,7 @@ import { SubmitButton } from "@/components/ui/submit-button";
 import { useT } from "@/i18n/provider";
 import { useMutationId } from "@/lib/actions/use-mutation-id";
 import { formatMoney } from "@/lib/money";
+import { DiscountFields } from "@/features/shopping/discount-fields";
 import { productSummariesSchema, type PriceHistoryEntry, type ProductSummary } from "@/types/domain";
 import type { ProductCursor, ProductsData } from "./data";
 import { deletePriceEntryAction, deleteProductAction, savePriceEntryAction } from "./actions";
@@ -54,6 +55,8 @@ function PriceEntryForm({ data, productId, entry }: { data: ProductsData; produc
   const { t, locale } = useT();
   const [state, action] = useActionState(savePriceEntryAction, initialProductMutationResult);
   const mutationId = useMutationId(state);
+  const [price, setPrice] = useState(entry?.price ?? "");
+  const [originalPrice, setOriginalPrice] = useState(entry?.originalPrice ? String(entry.originalPrice) : "");
   return (
     <form action={action} className="grid gap-4 border-t border-[var(--line)] pt-5">
       <h3 className="font-bold">{entry ? t("products.editPrice") : t("products.addPrice")}</h3>
@@ -67,10 +70,7 @@ function PriceEntryForm({ data, productId, entry }: { data: ProductsData; produc
           {data.references.stores.map((store) => <option key={store.id} value={store.id}>{store.name}{store.isActive ? "" : ` (${t("common.inactive")})`}</option>)}
         </Select>
       </Field>
-      <div className="grid grid-cols-2 gap-3">
-        <Field label={t("products.price")} htmlFor={`product-price-${entry?.id ?? "new"}`}><Input id={`product-price-${entry?.id ?? "new"}`} name="price" inputMode="decimal" defaultValue={entry?.price ?? ""} required /></Field>
-        <Field label={t("shopping.originalPrice")} htmlFor={`product-original-price-${entry?.id ?? "new"}`}><Input id={`product-original-price-${entry?.id ?? "new"}`} name="originalPrice" inputMode="decimal" defaultValue={entry?.originalPrice ? String(entry.originalPrice) : ""} /></Field>
-      </div>
+      <DiscountFields idPrefix={`product-price-${entry?.id ?? "new"}`} price={price} originalPrice={originalPrice} onPriceChange={setPrice} onOriginalPriceChange={setOriginalPrice} priceLabel={t("products.price")} required />
       <div className="grid grid-cols-2 gap-3">
         <Field label={t("shopping.quantity")} htmlFor={`product-price-quantity-${entry?.id ?? "new"}`}><Input id={`product-price-quantity-${entry?.id ?? "new"}`} name="quantity" inputMode="decimal" defaultValue={entry?.quantity ?? "1"} required /></Field>
         <Field label={t("products.effectiveAt")} htmlFor={`product-price-date-${entry?.id ?? "new"}`}><Input id={`product-price-date-${entry?.id ?? "new"}`} name="effectiveAt" type="datetime-local" defaultValue={entry ? new Date(entry.createdAt).toISOString().slice(0, 16) : ""} /></Field>

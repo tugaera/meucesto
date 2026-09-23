@@ -12,6 +12,18 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.24",
+    "date": "2026-09-23",
+    "categories": [
+      {
+        "name": "Added",
+        "entries": [
+          "Added synchronized discount inputs for current price, original price, discount amount, and discount percentage in basket item and product price forms."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.23",
     "date": "2026-09-23",
     "categories": [

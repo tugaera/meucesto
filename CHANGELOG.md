@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.24] - 2026-09-23
+
+### Added
+- Added synchronized discount inputs for current price, original price, discount amount, and discount percentage in basket item and product price forms.
+
 ## [1.0.23] - 2026-09-23
 
 ### Changed

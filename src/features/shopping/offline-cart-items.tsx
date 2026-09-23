@@ -11,6 +11,7 @@ import { useT } from "@/i18n/provider";
 import { calculateLineAmounts, formatMoney, parseLocalizedDecimal } from "@/lib/money";
 import { enqueueCartDelete, enqueueCartUpdate, retryOfflineMutation, subscribeToOfflineItems } from "@/lib/offline/queue";
 import type { OfflineCartItem } from "@/lib/offline/types";
+import { DiscountFields } from "./discount-fields";
 
 function localized(value: string, locale: "pt" | "en"): string {
   return locale === "pt" ? value.replace(".", ",") : value;
@@ -19,6 +20,8 @@ function localized(value: string, locale: "pt" | "en"): string {
 function OfflineCartItemRow({ item, editable }: { item: OfflineCartItem; editable: boolean }) {
   const { t, locale } = useT();
   const [feedback, setFeedback] = useState<"queued" | "invalid" | "failed" | null>(null);
+  const [price, setPrice] = useState(localized(item.price, locale));
+  const [originalPrice, setOriginalPrice] = useState(item.originalPrice ? localized(item.originalPrice, locale) : "");
   const subtotal = calculateLineAmounts(item.price, item.quantity, item.originalPrice).subtotal;
   const hasConflict = item.lastErrorCode === "REVISION_CONFLICT";
   const statusKey = hasConflict ? "sync.conflict" : item.status === "failed" ? "sync.failed" : item.status === "syncing" ? "sync.syncing" : "sync.pending";
@@ -79,10 +82,7 @@ function OfflineCartItemRow({ item, editable }: { item: OfflineCartItem; editabl
           <div className="grid gap-3 border-l-2 border-amber-200 py-2 pl-4">
             <form onSubmit={queueUpdate} className="grid gap-3">
               <Input name="name" defaultValue={item.name} aria-label={t("shopping.productName")} required />
-              <div className="grid grid-cols-2 gap-2">
-                <Input name="price" defaultValue={localized(item.price, locale)} inputMode="decimal" aria-label={t("shopping.price")} required />
-                <Input name="originalPrice" defaultValue={item.originalPrice ? localized(item.originalPrice, locale) : ""} inputMode="decimal" aria-label={t("shopping.originalPrice")} />
-              </div>
+              <DiscountFields idPrefix={`offline-item-${item.temporaryId}`} price={price} originalPrice={originalPrice} onPriceChange={setPrice} onOriginalPriceChange={setOriginalPrice} priceLabel={t("shopping.price")} required />
               <Input name="quantity" defaultValue={localized(item.quantity, locale)} inputMode="decimal" aria-label={t("shopping.quantity")} required />
               <Button type="submit" className="justify-self-end">{t("common.save")}</Button>
             </form>
