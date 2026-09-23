@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.26] - 2026-09-23
+
+### Changed
+- Changed synchronized discount fields to calculate on blur instead of every keystroke, and grouped discount inputs in a collapsible discount section.
+
+### Fixed
+- Fixed product price forms using raw decimal values in Portuguese inputs, so discount calculations work consistently in the product catalogue and basket.
+
 ## [1.0.25] - 2026-09-23
 
 ### Added

@@ -43,16 +43,18 @@ export function DiscountFields({
   showPrice?: boolean;
 }) {
   const { t, locale } = useT();
+  const initialDiscount = originalPrice ? deriveFrom(price, originalPrice, "original", locale) : null;
   const [basis, setBasis] = useState<DiscountBasis>("original");
-  const [amount, setAmount] = useState("");
-  const [percentage, setPercentage] = useState("");
+  const [amount, setAmount] = useState(() => initialDiscount ? localized(initialDiscount.amount, locale) : "");
+  const [percentage, setPercentage] = useState(() => initialDiscount ? localized(initialDiscount.percentage, locale) : "");
 
-  function applyDerived(finalPrice: string, value: string, nextBasis: DiscountBasis) {
+  function applyDerived(finalPrice: string, value: string, nextBasis: DiscountBasis): boolean {
     const derived = deriveFrom(finalPrice, value, nextBasis, locale);
-    if (!derived?.originalPrice) return;
+    if (!derived?.originalPrice) return false;
     onOriginalPriceChange(localized(derived.originalPrice, locale));
     setAmount(localized(derived.amount, locale));
     setPercentage(localized(derived.percentage, locale));
+    return true;
   }
 
   function clearDiscount() {
@@ -72,61 +74,70 @@ export function DiscountFields({
               inputMode="decimal"
               value={price}
               onChange={(event) => {
-                const nextPrice = event.target.value;
-                onPriceChange(nextPrice);
+                onPriceChange(event.target.value);
+              }}
+              onBlur={(event) => {
                 const discountValue = basis === "original" ? originalPrice : basis === "amount" ? amount : percentage;
-                if (discountValue) applyDerived(nextPrice, discountValue, basis);
+                if (discountValue) applyDerived(event.target.value, discountValue, basis);
               }}
               required={required}
             />
           </Field>
         ) : null}
-        <Field label={t("shopping.originalPrice")} htmlFor={`${idPrefix}-original-price`}>
-          <Input
-            id={`${idPrefix}-original-price`}
-            name="originalPrice"
-            inputMode="decimal"
-            value={originalPrice}
-            onChange={(event) => {
-              const nextOriginal = event.target.value;
-              setBasis("original");
-              onOriginalPriceChange(nextOriginal);
-              if (nextOriginal) applyDerived(price, nextOriginal, "original");
-              else clearDiscount();
-            }}
-          />
-        </Field>
       </div>
-      <div className="grid grid-cols-2 gap-3">
-        <Field label={t("shopping.discountAmount")} htmlFor={`${idPrefix}-discount-amount`}>
-          <Input
-            id={`${idPrefix}-discount-amount`}
-            inputMode="decimal"
-            value={amount}
-            onChange={(event) => {
-              const nextAmount = event.target.value;
-              setBasis("amount");
-              setAmount(nextAmount);
-              if (nextAmount) applyDerived(price, nextAmount, "amount");
-              else clearDiscount();
-            }}
-          />
-        </Field>
-        <Field label={t("shopping.discountPercent")} htmlFor={`${idPrefix}-discount-percent`}>
-          <Input
-            id={`${idPrefix}-discount-percent`}
-            inputMode="decimal"
-            value={percentage}
-            onChange={(event) => {
-              const nextPercentage = event.target.value;
-              setBasis("percentage");
-              setPercentage(nextPercentage);
-              if (nextPercentage) applyDerived(price, nextPercentage, "percentage");
-              else clearDiscount();
-            }}
-          />
-        </Field>
-      </div>
+      <details className="border border-[var(--line)] bg-gray-50/60 px-3 py-2">
+        <summary className="min-h-9 cursor-pointer py-1 text-sm font-semibold text-[var(--muted)]">{t("shopping.discount")}</summary>
+        <div className="grid gap-3 pt-3">
+          <Field label={t("shopping.originalPrice")} htmlFor={`${idPrefix}-original-price`}>
+            <Input
+              id={`${idPrefix}-original-price`}
+              name="originalPrice"
+              inputMode="decimal"
+              value={originalPrice}
+              onChange={(event) => {
+                setBasis("original");
+                onOriginalPriceChange(event.target.value);
+              }}
+              onBlur={(event) => {
+                const nextOriginal = event.target.value;
+                if (nextOriginal) applyDerived(price, nextOriginal, "original");
+                else clearDiscount();
+              }}
+            />
+          </Field>
+          <div className="grid grid-cols-2 gap-3">
+            <Field label={t("shopping.discountAmount")} htmlFor={`${idPrefix}-discount-amount`}>
+              <Input
+                id={`${idPrefix}-discount-amount`}
+                inputMode="decimal"
+                value={amount}
+                onChange={(event) => {
+                  setBasis("amount");
+                  setAmount(event.target.value);
+                }}
+                onBlur={(event) => {
+                  if (event.target.value) applyDerived(price, event.target.value, "amount");
+                }}
+              />
+            </Field>
+            <Field label={t("shopping.discountPercent")} htmlFor={`${idPrefix}-discount-percent`}>
+              <Input
+                id={`${idPrefix}-discount-percent`}
+                inputMode="decimal"
+                value={percentage}
+                onChange={(event) => {
+                  setBasis("percentage");
+                  setPercentage(event.target.value);
+                }}
+                onBlur={(event) => {
+                  if (event.target.value) applyDerived(price, event.target.value, "percentage");
+                }}
+              />
+            </Field>
+          </div>
+          <button type="button" className="min-h-9 justify-self-start text-sm font-semibold text-[var(--muted)] hover:text-[var(--ink)]" onClick={clearDiscount}>{t("shopping.removeDiscount")}</button>
+        </div>
+      </details>
     </div>
   );
 }

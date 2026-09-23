@@ -21,6 +21,10 @@ import { deletePriceEntryAction, deleteProductAction, savePriceEntryAction } fro
 import { AddProductDialog, ProductEditor } from "./product-editor";
 import { ProductMutationFeedback } from "./product-mutation-feedback";
 
+function localized(value: string, locale: "pt" | "en"): string {
+  return locale === "pt" ? value.replace(".", ",") : value;
+}
+
 function ProductRow({ product, query }: { product: ProductSummary; query: string }) {
   const { t, locale } = useT();
   const href = `/products?${new URLSearchParams({ ...(query ? { q: query } : {}), product: product.id }).toString()}`;
@@ -59,8 +63,8 @@ function PriceEntryForm({ data, productId, entry }: { data: ProductsData; produc
   const { t, locale } = useT();
   const [state, action] = useActionState(savePriceEntryAction, initialProductMutationResult);
   const mutationId = useMutationId(state);
-  const [price, setPrice] = useState(entry?.price ?? "");
-  const [originalPrice, setOriginalPrice] = useState(entry?.originalPrice ? String(entry.originalPrice) : "");
+  const [price, setPrice] = useState(entry?.price ? localized(entry.price, locale) : "");
+  const [originalPrice, setOriginalPrice] = useState(entry?.originalPrice ? localized(String(entry.originalPrice), locale) : "");
   return (
     <form action={action} className="grid gap-4 border-t border-[var(--line)] pt-5">
       <h3 className="font-bold">{entry ? t("products.editPrice") : t("products.addPrice")}</h3>
