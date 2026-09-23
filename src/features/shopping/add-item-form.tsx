@@ -33,6 +33,10 @@ type ProductDetailsValues = {
   tags: string;
 };
 
+function localized(value: string, locale: "pt" | "en"): string {
+  return locale === "pt" ? value.replace(".", ",") : value;
+}
+
 function ProductDetailsDialog({ open, onClose, cart, references, locale, values, onAdded }: {
   open: boolean; onClose: () => void; cart: Cart; references: ReferenceData; locale: "pt" | "en";
   values: ProductDetailsValues;
@@ -103,7 +107,7 @@ export function AddItemForm({ cart, references, userId }: { cart: Cart; referenc
   const [suggestion, setSuggestion] = useState({ categoryId: "", subcategoryId: "", brandId: "", newBrandName: "", measurementQuantity: "", unitId: "", tags: "" });
   const holdTimer = useRef<number | undefined>(undefined);
   const held = useRef(false);
-  const choose = (product: ProductSummary) => { setName(product.name); setBarcode(product.barcode ?? ""); setProductId(product.id); if (product.latestPrice) { setPrice(product.latestPrice.price); setOriginalPrice(product.latestPrice.originalPrice ? String(product.latestPrice.originalPrice) : ""); } };
+  const choose = (product: ProductSummary) => { setName(product.name); setBarcode(product.barcode ?? ""); setProductId(product.id); if (product.latestPrice) { setPrice(localized(product.latestPrice.price, locale)); setOriginalPrice(product.latestPrice.originalPrice ? localized(String(product.latestPrice.originalPrice), locale) : ""); } };
   const startHold = () => { held.current = false; holdTimer.current = window.setTimeout(() => { held.current = true; setDetailsOpen(true); }, 450); };
   const clearHold = () => { if (holdTimer.current) window.clearTimeout(holdTimer.current); };
   const lookupBarcode = async (rawValue: string) => {

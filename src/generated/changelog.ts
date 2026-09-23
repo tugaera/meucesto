@@ -12,6 +12,24 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.26",
+    "date": "2026-09-23",
+    "categories": [
+      {
+        "name": "Changed",
+        "entries": [
+          "Changed synchronized discount fields to calculate on blur instead of every keystroke, and grouped discount inputs in a collapsible discount section."
+        ]
+      },
+      {
+        "name": "Fixed",
+        "entries": [
+          "Fixed product price forms using raw decimal values in Portuguese inputs, so discount calculations work consistently in the product catalogue and basket."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.25",
     "date": "2026-09-23",
     "categories": [
