@@ -85,6 +85,31 @@ function UnitForm({ title, unit, units, isAdmin }: { title: string; unit?: Refer
   const saveMutationId = useMutationId(state);
   const deleteMutationId = useMutationId();
   const mutationIds = { save: saveMutationId, delete: deleteMutationId };
-  const form = <form action={action} className="grid gap-4 py-4"><input type="hidden" name="unitId" value={unit?.id ?? ""} /><input type="hidden" name="mutationId" value={mutationIds.save} /><input type="hidden" name="deleteMutationId" value={mutationIds.delete} /><div className="grid gap-4 sm:grid-cols-2"><Field label={t("common.name")} htmlFor={`unit-name-${unit?.id ?? "new"}`}><Input id={`unit-name-${unit?.id ?? "new"}`} name="name" defaultValue={unit?.name} required /></Field><Field label={t("admin.abbreviation")} htmlFor={`unit-abbreviation-${unit?.id ?? "new"}`}><Input id={`unit-abbreviation-${unit?.id ?? "new"}`} name="abbreviation" defaultValue={unit?.abbreviation} required /></Field></div><div className="flex flex-wrap gap-5"><ActiveCheckbox defaultChecked={unit?.isActive ?? true} /><label className="flex min-h-11 items-center gap-3 text-sm font-semibold"><input type="checkbox" name="makeDefault" defaultChecked={unit?.isDefault ?? false} className="h-5 w-5 accent-[var(--emerald)]" />{t("admin.default")}</label></div>{unit?.isDefault ? <Field label={t("admin.default")} htmlFor={`unit-replacement-${unit.id}`}><Select id={`unit-replacement-${unit.id}`} name="replacementDefaultId" defaultValue=""><option value="">{t("common.none")}</option>{units.filter((item) => item.id !== unit.id && item.isActive).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</Select></Field> : <input type="hidden" name="replacementDefaultId" value="" />}<FormFooter state={state} isAdmin={isAdmin} {...(unit ? { deleteEntity: { type: "unit" as const, id: unit.id } } : {})} /></form>;
+  const baseUnitOptions = units.filter((item) => item.id !== unit?.id && item.isActive);
+  const form = (
+    <form action={action} className="grid gap-4 py-4">
+      <input type="hidden" name="unitId" value={unit?.id ?? ""} />
+      <input type="hidden" name="mutationId" value={mutationIds.save} />
+      <input type="hidden" name="deleteMutationId" value={mutationIds.delete} />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label={t("common.name")} htmlFor={`unit-name-${unit?.id ?? "new"}`}><Input id={`unit-name-${unit?.id ?? "new"}`} name="name" defaultValue={unit?.name} required /></Field>
+        <Field label={t("admin.abbreviation")} htmlFor={`unit-abbreviation-${unit?.id ?? "new"}`}><Input id={`unit-abbreviation-${unit?.id ?? "new"}`} name="abbreviation" defaultValue={unit?.abbreviation} required /></Field>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label={t("admin.baseUnit")} htmlFor={`unit-base-${unit?.id ?? "new"}`}>
+          <Select id={`unit-base-${unit?.id ?? "new"}`} name="baseUnitId" defaultValue={unit?.baseUnitId ?? ""}>
+            <option value="">{t("common.none")}</option>
+            {baseUnitOptions.map((item) => <option key={item.id} value={item.id}>{item.name} ({item.abbreviation})</option>)}
+          </Select>
+        </Field>
+        <Field label={t("admin.baseUnitFactor")} htmlFor={`unit-factor-${unit?.id ?? "new"}`}>
+          <Input id={`unit-factor-${unit?.id ?? "new"}`} name="baseUnitFactor" inputMode="decimal" defaultValue={unit?.baseUnitFactor ?? ""} />
+        </Field>
+      </div>
+      <div className="flex flex-wrap gap-5"><ActiveCheckbox defaultChecked={unit?.isActive ?? true} /><label className="flex min-h-11 items-center gap-3 text-sm font-semibold"><input type="checkbox" name="makeDefault" defaultChecked={unit?.isDefault ?? false} className="h-5 w-5 accent-[var(--emerald)]" />{t("admin.default")}</label></div>
+      {unit?.isDefault ? <Field label={t("admin.default")} htmlFor={`unit-replacement-${unit.id}`}><Select id={`unit-replacement-${unit.id}`} name="replacementDefaultId" defaultValue=""><option value="">{t("common.none")}</option>{units.filter((item) => item.id !== unit.id && item.isActive).map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</Select></Field> : <input type="hidden" name="replacementDefaultId" value="" />}
+      <FormFooter state={state} isAdmin={isAdmin} {...(unit ? { deleteEntity: { type: "unit" as const, id: unit.id } } : {})} />
+    </form>
+  );
   return unit ? <details><summary className="flex min-h-14 cursor-pointer items-center justify-between gap-3 py-3"><span className="font-semibold">{title}</span>{unit.isDefault ? <Badge tone="info">{t("admin.default")}</Badge> : null}</summary>{form}</details> : <section aria-label={title}><h2 className="text-lg font-bold">{title}</h2>{form}</section>;
 }

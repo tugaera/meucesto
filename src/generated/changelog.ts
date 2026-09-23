@@ -12,6 +12,60 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.25",
+    "date": "2026-09-23",
+    "categories": [
+      {
+        "name": "Added",
+        "entries": [
+          "Added parent pricing units for catalogue units so small package units such as grams and millilitres can display product prices per kilogram or litre."
+        ]
+      },
+      {
+        "name": "Changed",
+        "entries": [
+          "Updated the default unit seed data to map `g` to `kg` and `ml` to `l`, and updated product list price-per-unit calculations to use those parent units."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "1.0.24",
+    "date": "2026-09-23",
+    "categories": [
+      {
+        "name": "Added",
+        "entries": [
+          "Added synchronized discount inputs for current price, original price, discount amount, and discount percentage in basket item and product price forms."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "1.0.23",
+    "date": "2026-09-23",
+    "categories": [
+      {
+        "name": "Changed",
+        "entries": [
+          "Made receipt import review more compact with click-to-edit line fields, centered product dialogs, and an explicit product matching flow for linking OCR lines to existing catalogue products."
+        ]
+      }
+    ]
+  },
+  {
+    "version": "1.0.22",
+    "date": "2026-09-23",
+    "categories": [
+      {
+        "name": "Changed",
+        "entries": [
+          "Split receipt uploads into explicit camera and image-library choices when `RECEIPT_ALLOW_LIBRARY_UPLOADS` is enabled, while keeping camera-only capture as the default deployment behavior."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.21",
     "date": "2026-09-23",
     "categories": [

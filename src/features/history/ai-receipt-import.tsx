@@ -1,10 +1,10 @@
 "use client";
 
 import { initialAiReceiptResult, initialAiReviewDecisionResult } from "@/lib/actions/types";
-import { Check, Sparkles, X } from "lucide-react";
+import { Check, Link2, Search, Sparkles, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useCallback, useEffect, useId, useRef, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/field";
@@ -15,8 +15,9 @@ import { useT } from "@/i18n/provider";
 import { useMutationId } from "@/lib/actions/use-mutation-id";
 import type { ReceiptReview } from "@/lib/ai/types";
 import { formatMoney } from "@/lib/money";
+import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
-import type { ProductDetail, ReferenceData } from "@/types/domain";
+import { productSummariesSchema, type ProductDetail, type ProductSummary, type ReferenceData } from "@/types/domain";
 import { extractReceiptAction, recordAiReviewDecisionAction } from "./ai-actions";
 
 type Decision = "accepted" | "rejected";
@@ -105,6 +106,121 @@ function ReviewDecisionForm({ cartId, receiptId, review, decisions, isReceiptImp
   );
 }
 
+function EditableLineValue({
+  label,
+  value,
+  onChange,
+  inputMode,
+  emphasis = false,
+}: {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  inputMode?: "decimal" | "numeric";
+  emphasis?: boolean;
+}) {
+  const { t } = useT();
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+  if (editing) {
+    return (
+      <div className="grid gap-1">
+        <span className="text-[11px] font-semibold uppercase text-[var(--muted)]">{label}</span>
+        <div className="flex gap-1">
+          <Input autoFocus aria-label={label} value={draft} inputMode={inputMode} onChange={(event) => setDraft(event.target.value)} className={cn("min-h-10 text-sm", emphasis && "font-semibold")} />
+          <Button type="button" size="icon" className="h-10 min-h-10 w-10" title={t("common.save")} aria-label={t("common.save")} onClick={() => { onChange(draft); setEditing(false); }}><Check className="h-4 w-4" aria-hidden /></Button>
+          <Button type="button" variant="secondary" size="icon" className="h-10 min-h-10 w-10" title={t("common.cancel")} aria-label={t("common.cancel")} onClick={() => { setDraft(value); setEditing(false); }}><X className="h-4 w-4" aria-hidden /></Button>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <button type="button" className="min-h-10 text-left hover:bg-white/70 focus:outline-none focus:ring-2 focus:ring-[var(--emerald)]" onClick={() => { setDraft(value); setEditing(true); }}>
+      <span className="block text-[11px] font-semibold uppercase text-[var(--muted)]">{label}</span>
+      <span className={cn("block break-words text-sm", emphasis && "font-semibold text-[var(--ink)]")}>{value.trim() || t("common.none")}</span>
+    </button>
+  );
+}
+
+function ReceiptLineProductMatchDialog({
+  initialQuery,
+  onProductSelected,
+}: {
+  initialQuery: string;
+  onProductSelected: (product: ProductSummary) => void;
+}) {
+  const { t, locale } = useT();
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const listId = useId();
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState(initialQuery);
+  const [results, setResults] = useState<ProductSummary[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const close = useCallback(() => {
+    setOpen(false);
+    window.requestAnimationFrame(() => triggerRef.current?.focus());
+  }, []);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (open && !dialog.open) dialog.showModal();
+    if (!open && dialog.open) dialog.close();
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const searchText = query.trim();
+    if (searchText.length < 2) return;
+    const timer = window.setTimeout(async () => {
+      setLoading(true);
+      const { data, error } = await createClient().rpc("search_products", { search_text: searchText, page_size: 8 });
+      const parsed = productSummariesSchema.safeParse(data);
+      setResults(!error && parsed.success ? parsed.data : []);
+      setLoading(false);
+    }, 220);
+    return () => window.clearTimeout(timer);
+  }, [open, query]);
+
+  return (
+    <>
+      <Button ref={triggerRef} type="button" variant="secondary" size="compact" className="w-fit" onClick={() => { setQuery(initialQuery); setResults([]); setOpen(true); }}><Link2 className="h-4 w-4" aria-hidden />{t("ai.matchProduct")}</Button>
+      <dialog ref={dialogRef} onClose={close} onCancel={() => setOpen(false)} aria-labelledby="receipt-line-match-title" className="m-auto max-h-[92vh] w-[calc(100%-2rem)] max-w-xl border border-[var(--line)] bg-white p-0 text-[var(--ink)] shadow-xl backdrop:bg-black/55">
+        <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[var(--line)] bg-white px-5 py-4">
+          <div>
+            <h2 id="receipt-line-match-title" className="text-lg font-bold">{t("ai.matchProduct")}</h2>
+            <p className="mt-1 text-xs leading-5 text-[var(--muted)]">{t("ai.matchProductHelp")}</p>
+          </div>
+          <Button type="button" variant="quiet" size="icon" onClick={close} aria-label={t("common.close")}><X className="h-5 w-5" aria-hidden /></Button>
+        </header>
+        <div className="grid gap-4 p-5">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-[var(--muted)]" aria-hidden />
+            <Input value={query} onChange={(event) => setQuery(event.target.value)} autoFocus role="combobox" aria-controls={listId} aria-expanded={results.length > 0} className="pl-10" placeholder={t("products.searchPlaceholder")} />
+          </div>
+          {loading ? <p className="text-sm text-[var(--muted)]">{t("common.loading")}</p> : null}
+          <ul id={listId} className="max-h-80 overflow-y-auto border border-[var(--line)]">
+            {(query.trim().length >= 2 ? results : []).map((product) => (
+              <li key={product.id} className="border-b border-[var(--line)] last:border-0">
+                <button type="button" className="flex min-h-14 w-full items-center justify-between gap-3 px-3 py-2 text-left hover:bg-gray-50" onClick={() => { onProductSelected(product); close(); }}>
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-semibold">{product.name}</span>
+                    <span className="block text-xs text-[var(--muted)]">{[product.brand?.name, product.barcode].filter(Boolean).join(" · ") || t("products.noPrice")}</span>
+                  </span>
+                  <span className="shrink-0 text-xs font-bold text-[var(--emerald-dark)]">{product.latestPrice?.price ? formatMoney(product.latestPrice.price, locale) : ""}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+          {!loading && query.trim().length >= 2 && results.length === 0 ? <p className="text-sm text-[var(--muted)]">{t("products.empty")}</p> : null}
+        </div>
+      </dialog>
+    </>
+  );
+}
+
 function ReceiptLineProductDialog({
   line,
   references,
@@ -116,32 +232,42 @@ function ReceiptLineProductDialog({
 }) {
   const { t } = useT();
   const [open, setOpen] = useState(false);
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const close = useCallback(() => {
+    setOpen(false);
+    window.requestAnimationFrame(() => triggerRef.current?.focus());
+  }, []);
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (open && !dialog.open) dialog.showModal();
+    if (!open && dialog.open) dialog.close();
+  }, [open]);
   return (
     <>
-      <Button type="button" variant="secondary" size="compact" className="w-fit" onClick={() => setOpen(true)}>{t("ai.productDetails")}</Button>
-      {open ? (
-        <dialog open aria-labelledby="receipt-line-product-title" className="fixed inset-4 z-50 m-auto max-h-[92vh] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto border border-[var(--line)] bg-white p-0 text-[var(--ink)] shadow-xl backdrop:bg-black/55">
+      <Button ref={triggerRef} type="button" variant="secondary" size="compact" className="w-fit" onClick={() => setOpen(true)}>{t("ai.productDetails")}</Button>
+      <dialog ref={dialogRef} onClose={close} onCancel={() => setOpen(false)} aria-labelledby="receipt-line-product-title" className="m-auto max-h-[92vh] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto border border-[var(--line)] bg-white p-0 text-[var(--ink)] shadow-xl backdrop:bg-black/55">
           <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-[var(--line)] bg-white px-5 py-4">
             <div>
               <h2 id="receipt-line-product-title" className="text-lg font-bold">{t("ai.productDetails")}</h2>
               <p className="mt-1 text-xs leading-5 text-[var(--muted)]">{t("ai.productDetailsHelp")}</p>
             </div>
-            <Button variant="quiet" size="icon" onClick={() => setOpen(false)} aria-label={t("common.close")}><X className="h-5 w-5" aria-hidden /></Button>
+            <Button type="button" variant="quiet" size="icon" onClick={close} aria-label={t("common.close")}><X className="h-5 w-5" aria-hidden /></Button>
           </header>
           <div className="p-5">
             <ProductEditor
               references={references}
               elevated={false}
               initialValues={{ name: line.name, barcode: line.barcode }}
-              onClose={() => setOpen(false)}
+              onClose={close}
               onProductSaved={(product) => {
                 onProductSaved(product);
-                setOpen(false);
+                close();
               }}
             />
           </div>
         </dialog>
-      ) : null}
     </>
   );
 }
@@ -150,7 +276,7 @@ function ReceiptReviewEditor({ cartId, receiptId, review, isReceiptImport, refer
   const { t, locale } = useT();
   const [decisions, setDecisions] = useState<Record<number, Decision>>(() => decisionsFromReview(review, isReceiptImport ? "accepted" : "rejected"));
   const [editableLines, setEditableLines] = useState<EditableReceiptLine[]>(() => editableLinesFromReview(review));
-  const [linkedProducts, setLinkedProducts] = useState<Record<number, ProductDetail>>({});
+  const [linkedProducts, setLinkedProducts] = useState<Record<number, ProductDetail | ProductSummary>>({});
   const acceptedCount = Object.values(decisions).filter((decision) => decision === "accepted").length;
   const updateEditableLine = (index: number, patch: Partial<EditableReceiptLine>) => {
     setEditableLines((current) => current.map((line, lineIndex) => lineIndex === index ? { ...line, ...patch } : line));
@@ -196,15 +322,23 @@ function ReceiptReviewEditor({ cartId, receiptId, review, isReceiptImport, refer
                       setDecisions((current) => ({ ...current, [index]: "accepted" }));
                     }}
                   />
+                  <ReceiptLineProductMatchDialog
+                    initialQuery={editable.name}
+                    onProductSelected={(product) => {
+                      updateEditableLine(index, { name: product.name, barcode: product.barcode ?? "" });
+                      setLinkedProducts((current) => ({ ...current, [index]: product }));
+                      setDecisions((current) => ({ ...current, [index]: "accepted" }));
+                    }}
+                  />
                 </div>
               ) : null}
-              <div className={cn("grid gap-3", isReceiptImport ? "sm:grid-cols-[minmax(0,1.35fr)_minmax(7rem,0.45fr)_minmax(7rem,0.45fr)_minmax(7rem,0.45fr)]" : "sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start")}>
+              <div className={cn("grid gap-3", isReceiptImport ? "sm:grid-cols-[minmax(0,1.35fr)_minmax(5rem,0.35fr)_minmax(5rem,0.35fr)_minmax(5rem,0.35fr)]" : "sm:grid-cols-[minmax(0,1fr)_auto] sm:items-start")}>
                 {isReceiptImport ? (
                   <>
-                    <Input aria-label={t("shopping.productName")} value={editable.name} onChange={(event) => updateEditableLine(index, { name: event.target.value })} className="min-h-10 text-sm font-semibold" />
-                    <Input aria-label={t("shopping.quantity")} inputMode="decimal" value={editable.quantity} onChange={(event) => updateEditableLine(index, { quantity: event.target.value })} className="min-h-10 text-sm" />
-                    <Input aria-label={t("shopping.price")} inputMode="decimal" value={editable.unitPrice} onChange={(event) => updateEditableLine(index, { unitPrice: event.target.value })} className="min-h-10 text-sm" />
-                    <Input aria-label={t("shopping.total")} inputMode="decimal" value={editable.lineTotal} onChange={(event) => updateEditableLine(index, { lineTotal: event.target.value })} className="min-h-10 text-sm font-semibold" />
+                    <EditableLineValue label={t("shopping.productName")} value={editable.name} onChange={(value) => updateEditableLine(index, { name: value })} emphasis />
+                    <EditableLineValue label={t("shopping.quantity")} value={editable.quantity} inputMode="decimal" onChange={(value) => updateEditableLine(index, { quantity: value })} />
+                    <EditableLineValue label={t("shopping.price")} value={editable.unitPrice} inputMode="decimal" onChange={(value) => updateEditableLine(index, { unitPrice: value })} />
+                    <EditableLineValue label={t("shopping.total")} value={editable.lineTotal} inputMode="decimal" onChange={(value) => updateEditableLine(index, { lineTotal: value })} emphasis />
                   </>
                 ) : (
                   <>
@@ -217,7 +351,7 @@ function ReceiptReviewEditor({ cartId, receiptId, review, isReceiptImport, refer
                   </>
                 )}
               </div>
-              {isReceiptImport ? <Input aria-label={t("shopping.barcode")} value={editable.barcode} onChange={(event) => updateEditableLine(index, { barcode: event.target.value })} className="min-h-10 text-sm" placeholder={t("shopping.barcode")} /> : null}
+              {isReceiptImport ? <EditableLineValue label={t("shopping.barcode")} value={editable.barcode} inputMode="numeric" onChange={(value) => updateEditableLine(index, { barcode: value })} /> : null}
               <div className="flex flex-wrap gap-1.5">
                 {linkedProduct ? <Badge tone="success">{t("ai.productLinked")}</Badge> : null}
                 {item.flags.map((flag) => <Badge key={flag} tone={flag === "no_match" ? "warning" : "info"}>{t(flag === "no_match" ? (isReceiptImport ? "ai.newReceiptLine" : "ai.noMatch") : flag === "price_differs" ? "ai.priceDiffers" : "ai.quantityDiffers")}</Badge>)}

@@ -48,7 +48,7 @@ export const referenceDataSchema = z.object({
   stores: z.array(z.object({ id: z.uuid(), name: z.string(), isActive: z.boolean(), sortOrder: z.number().int().nullable() })),
   categories: z.array(z.object({ id: z.uuid(), name: z.string(), parentId: z.uuid().nullable(), isActive: z.boolean(), sortOrder: z.number().int().nullable() })),
   brands: z.array(z.object({ id: z.uuid(), name: z.string(), isActive: z.boolean(), isVerified: z.boolean() })),
-  units: z.array(z.object({ id: z.uuid(), name: z.string(), abbreviation: z.string(), isActive: z.boolean(), isDefault: z.boolean() })),
+  units: z.array(z.object({ id: z.uuid(), name: z.string(), abbreviation: z.string(), isActive: z.boolean(), isDefault: z.boolean(), baseUnitId: z.uuid().nullable(), baseUnitName: nullableString, baseUnitAbbreviation: nullableString, baseUnitFactor: decimalString.nullable() })),
 });
 
 export const listDirectoryItemSchema = z.object({
@@ -75,7 +75,7 @@ export const productSummarySchema = z.object({
   category: z.object({ id: z.uuid(), name: z.string() }).nullable(),
   subcategory: z.object({ id: z.uuid(), name: z.string() }).nullable(),
   brand: z.object({ id: z.uuid(), name: z.string(), isVerified: z.boolean() }).nullable(),
-  unit: z.object({ id: z.uuid(), name: z.string(), abbreviation: z.string() }).nullable(),
+  unit: z.object({ id: z.uuid(), name: z.string(), abbreviation: z.string(), baseUnitId: z.uuid().nullable(), baseUnitName: nullableString, baseUnitAbbreviation: nullableString, baseUnitFactor: decimalString.nullable() }).nullable(),
   latestPrice: z.object({ id: z.uuid(), storeId: z.uuid(), storeName: z.string(), price: decimalString, originalPrice: z.union([z.string(), z.number()]).nullable(), quantity: decimalString, createdAt: z.string() }).nullable(),
 });
 export const productSummariesSchema = z.array(productSummarySchema);

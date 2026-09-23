@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.0.25] - 2026-09-23
+
+### Added
+- Added parent pricing units for catalogue units so small package units such as grams and millilitres can display product prices per kilogram or litre.
+
+### Changed
+- Updated the default unit seed data to map `g` to `kg` and `ml` to `l`, and updated product list price-per-unit calculations to use those parent units.
+
+## [1.0.24] - 2026-09-23
+
+### Added
+- Added synchronized discount inputs for current price, original price, discount amount, and discount percentage in basket item and product price forms.
+
+## [1.0.23] - 2026-09-23
+
+### Changed
+- Made receipt import review more compact with click-to-edit line fields, centered product dialogs, and an explicit product matching flow for linking OCR lines to existing catalogue products.
+
+## [1.0.22] - 2026-09-23
+
+### Changed
+- Split receipt uploads into explicit camera and image-library choices when `RECEIPT_ALLOW_LIBRARY_UPLOADS` is enabled, while keeping camera-only capture as the default deployment behavior.
+
 ## [1.0.21] - 2026-09-23
 
 ### Added
