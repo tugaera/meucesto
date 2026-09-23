@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.23] - 2026-09-23
+
+### Changed
+- Made receipt import review more compact with click-to-edit line fields, centered product dialogs, and an explicit product matching flow for linking OCR lines to existing catalogue products.
+
 ## [1.0.22] - 2026-09-23
 
 ### Changed

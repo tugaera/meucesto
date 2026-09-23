@@ -12,6 +12,18 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.23",
+    "date": "2026-09-23",
+    "categories": [
+      {
+        "name": "Changed",
+        "entries": [
+          "Made receipt import review more compact with click-to-edit line fields, centered product dialogs, and an explicit product matching flow for linking OCR lines to existing catalogue products."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.22",
     "date": "2026-09-23",
     "categories": [

@@ -255,6 +255,8 @@
   "ai.newReceiptLine": "Linha nova do recibo",
   "ai.productDetails": "Produto",
   "ai.productDetailsHelp": "Cria ou revê a ficha do catálogo para esta linha. Ao guardar a compra, a linha será associada se o nome ou código de barras corresponder ao produto.",
+  "ai.matchProduct": "Associar produto",
+  "ai.matchProductHelp": "Procura um produto existente no catálogo e usa o nome ou código de barras desse produto nesta linha do recibo.",
   "ai.productLinked": "Produto ligado",
   "ai.priceDiffers": "Preço diferente",
   "ai.quantityDiffers": "Quantidade diferente",
