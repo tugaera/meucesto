@@ -1,6 +1,6 @@
 begin;
 
-select plan(20);
+select plan(21);
 
 select ok(to_regclass('public.profiles') is not null, 'profiles table exists');
 select ok(to_regclass('public.shopping_carts') is not null, 'shopping carts table exists');
@@ -32,6 +32,18 @@ select set_eq(
   'select abbreviation::text from public.units',
   array['un','g','kg','ml','l','dose'],
   'canonical units are seeded'
+);
+select is(
+  (
+    select count(*)::integer
+    from public.units child
+    join public.units parent on parent.id = child.base_unit_id
+    where child.abbreviation in ('g','ml')
+      and (child.abbreviation = 'g' and parent.abbreviation = 'kg' or child.abbreviation = 'ml' and parent.abbreviation = 'l')
+      and child.base_unit_factor = 1000
+  ),
+  2,
+  'canonical small units have parent pricing units'
 );
 
 select ok(

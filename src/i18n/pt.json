@@ -307,6 +307,8 @@
   "admin.default": "Predefinida",
   "admin.sortOrder": "Ordem",
   "admin.parent": "Categoria principal",
+  "admin.baseUnit": "Unidade pai para preço",
+  "admin.baseUnitFactor": "Fator para unidade pai",
   "admin.abbreviation": "Abreviatura",
   "admin.newStore": "Nova loja",
   "admin.newCategory": "Nova categoria",

@@ -26,8 +26,12 @@ function ProductRow({ product, query }: { product: ProductSummary; query: string
   const href = `/products?${new URLSearchParams({ ...(query ? { q: query } : {}), product: product.id }).toString()}`;
   let perUnit: string | null = null;
   if (product.latestPrice && product.measurementQuantity && product.unit) {
-    const amount = new Decimal(product.latestPrice.price).div(String(product.measurementQuantity));
-    perUnit = t("products.pricePerUnit", { price: formatMoney(amount.toDecimalPlaces(2), locale), unit: product.unit.abbreviation });
+    const baseFactor = product.unit.baseUnitFactor ? new Decimal(product.unit.baseUnitFactor) : new Decimal(1);
+    const baseQuantity = new Decimal(String(product.measurementQuantity)).div(baseFactor);
+    if (baseQuantity.gt(0)) {
+      const amount = new Decimal(product.latestPrice.price).div(baseQuantity);
+      perUnit = t("products.pricePerUnit", { price: formatMoney(amount.toDecimalPlaces(2), locale), unit: product.unit.baseUnitAbbreviation ?? product.unit.abbreviation });
+    }
   }
   return (
     <li className="border-b border-[var(--line)] last:border-0">

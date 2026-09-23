@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.25] - 2026-09-23
+
+### Added
+- Added parent pricing units for catalogue units so small package units such as grams and millilitres can display product prices per kilogram or litre.
+
+### Changed
+- Updated the default unit seed data to map `g` to `kg` and `ml` to `l`, and updated product list price-per-unit calculations to use those parent units.
+
 ## [1.0.24] - 2026-09-23
 
 ### Added

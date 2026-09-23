@@ -99,9 +99,9 @@ export async function saveBrandAction(_state: AdminActionResult, formData: FormD
 
 export async function saveUnitAction(_state: AdminActionResult, formData: FormData): Promise<AdminActionResult> {
   await requireAdminOrModerator();
-  const parsed = z.object({ unitId: optionalUuid, name: z.string().trim().min(1).max(80), abbreviation: z.string().trim().regex(/^[A-Za-z][A-Za-z0-9]{0,15}$/), replacementDefaultId: optionalUuid, isActive: z.string().optional(), makeDefault: z.string().optional(), mutationId: z.string().optional() }).safeParse(fields(formData));
+  const parsed = z.object({ unitId: optionalUuid, name: z.string().trim().min(1).max(80), abbreviation: z.string().trim().regex(/^[A-Za-z][A-Za-z0-9]{0,15}$/), baseUnitId: optionalUuid, baseUnitFactor: z.string().trim().optional(), replacementDefaultId: optionalUuid, isActive: z.string().optional(), makeDefault: z.string().optional(), mutationId: z.string().optional() }).safeParse(fields(formData));
   if (!parsed.success) return invalid(parsed.error);
-  const { data, error } = await (await createClient()).rpc("catalog_save_unit", { unit_id: parsed.data.unitId || null, name: parsed.data.name, abbreviation: parsed.data.abbreviation.toLowerCase(), is_active: parsed.data.isActive === "on", make_default: parsed.data.makeDefault === "on", replacement_default_id: parsed.data.replacementDefaultId || null, mutation_id: mutationId(parsed.data.mutationId) });
+  const { data, error } = await (await createClient()).rpc("catalog_save_unit", { unit_id: parsed.data.unitId || null, name: parsed.data.name, abbreviation: parsed.data.abbreviation.toLowerCase(), base_unit_id: parsed.data.baseUnitId || null, base_unit_factor: parsed.data.baseUnitFactor || null, is_active: parsed.data.isActive === "on", make_default: parsed.data.makeDefault === "on", replacement_default_id: parsed.data.replacementDefaultId || null, mutation_id: mutationId(parsed.data.mutationId) });
   if (error) return failed(error); revalidatePath("/admin");
   return { success: true, data: { message: "CATALOG_SAVED", data } };
 }

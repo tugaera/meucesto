@@ -1,6 +1,6 @@
 {
   "name": "meu-cesto",
-  "version": "1.0.24",
+  "version": "1.0.25",
   "private": true,
   "type": "module",
   "description": "Meu Cesto - a collaborative shopping assistant for Portuguese-first families.",

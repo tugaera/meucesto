@@ -307,6 +307,8 @@
   "admin.default": "Default",
   "admin.sortOrder": "Sort order",
   "admin.parent": "Parent category",
+  "admin.baseUnit": "Price parent unit",
+  "admin.baseUnitFactor": "Parent unit factor",
   "admin.abbreviation": "Abbreviation",
   "admin.newStore": "New store",
   "admin.newCategory": "New category",

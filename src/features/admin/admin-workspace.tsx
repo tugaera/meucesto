@@ -34,7 +34,7 @@ export function AdminWorkspace({ data, initialTab, cursorState }: { data: AdminD
     ...data.references.stores.map((item) => `${item.id}:${item.name}:${item.isActive}:${item.sortOrder ?? ""}`),
     ...data.references.categories.map((item) => `${item.id}:${item.name}:${item.parentId ?? ""}:${item.isActive}:${item.sortOrder ?? ""}`),
     ...data.references.brands.map((item) => `${item.id}:${item.name}:${item.isActive}:${item.isVerified}`),
-    ...data.references.units.map((item) => `${item.id}:${item.name}:${item.abbreviation}:${item.isActive}:${item.isDefault}`),
+    ...data.references.units.map((item) => `${item.id}:${item.name}:${item.abbreviation}:${item.isActive}:${item.isDefault}:${item.baseUnitId ?? ""}:${item.baseUnitFactor ?? ""}`),
   ].join("|");
   return (
     <div className="mx-auto grid max-w-3xl gap-6">

@@ -110,7 +110,7 @@ export type Database = {
       catalog_save_store: Rpc<{ store_id: string | null; name: string; is_active: boolean; sort_order: number | null; mutation_id: string }>;
       catalog_save_category: Rpc<{ category_id: string | null; name: string; parent_id: string | null; is_active: boolean; sort_order: number | null; mutation_id: string }>;
       catalog_save_brand: Rpc<{ brand_id: string | null; name: string; is_active: boolean; is_verified: boolean; mutation_id: string }>;
-      catalog_save_unit: Rpc<{ unit_id: string | null; name: string; abbreviation: string; is_active: boolean; make_default: boolean; replacement_default_id: string | null; mutation_id: string }>;
+      catalog_save_unit: Rpc<{ unit_id: string | null; name: string; abbreviation: string; base_unit_id: string | null; base_unit_factor: string | null; is_active: boolean; make_default: boolean; replacement_default_id: string | null; mutation_id: string }>;
       catalog_save_product: Rpc<{ product_id: string; product: Json; mutation_id: string }>;
       catalog_save_price_entry: Rpc<{ entry_id: string | null; entry: Json; mutation_id: string }>;
       catalog_delete_price_entry: Rpc<{ entry_id: string; mutation_id: string }>;

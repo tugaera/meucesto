@@ -139,11 +139,16 @@ create table public.units (
   id uuid primary key default extensions.uuid_generate_v4(),
   name extensions.citext not null unique check (char_length(btrim(name::text)) between 1 and 80),
   abbreviation extensions.citext not null unique check (abbreviation::text ~ '^[a-z][a-z0-9]{0,15}$'),
+  base_unit_id uuid references public.units(id) on delete restrict,
+  base_unit_factor numeric(12,6),
   is_default boolean not null default false,
   is_active boolean not null default true,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  check (not is_default or is_active)
+  check (not is_default or is_active),
+  constraint units_base_unit_not_self check (base_unit_id is null or base_unit_id <> id),
+  constraint units_base_unit_pair check ((base_unit_id is null) = (base_unit_factor is null)),
+  constraint units_base_unit_factor_positive check (base_unit_factor is null or base_unit_factor > 0)
 );
 
 create table public.products (
@@ -2782,7 +2787,17 @@ begin
     'stores', (select coalesce(jsonb_agg(jsonb_build_object('id', s.id, 'name', s.name::text, 'isActive', s.is_active, 'sortOrder', s.sort_order) order by s.sort_order nulls last, s.name::text, s.id), '[]'::jsonb) from public.stores s where elevated or s.is_active),
     'categories', (select coalesce(jsonb_agg(jsonb_build_object('id', c.id, 'name', c.name::text, 'parentId', c.parent_id, 'isActive', c.is_active, 'sortOrder', c.sort_order) order by c.sort_order nulls last, c.name::text, c.id), '[]'::jsonb) from public.categories c where elevated or c.is_active),
     'brands', (select coalesce(jsonb_agg(jsonb_build_object('id', b.id, 'name', b.name::text, 'isActive', b.is_active, 'isVerified', b.is_verified) order by b.name::text, b.id), '[]'::jsonb) from public.brands b where (elevated or b.is_active) and (elevated or b.is_verified)),
-    'units', (select coalesce(jsonb_agg(jsonb_build_object('id', u.id, 'name', u.name::text, 'abbreviation', u.abbreviation::text, 'isActive', u.is_active, 'isDefault', u.is_default) order by u.is_default desc, u.name::text, u.id), '[]'::jsonb) from public.units u where elevated or u.is_active)
+    'units', (
+      select coalesce(jsonb_agg(jsonb_build_object(
+        'id', u.id, 'name', u.name::text, 'abbreviation', u.abbreviation::text,
+        'isActive', u.is_active, 'isDefault', u.is_default,
+        'baseUnitId', u.base_unit_id, 'baseUnitName', bu.name::text,
+        'baseUnitAbbreviation', bu.abbreviation::text, 'baseUnitFactor', u.base_unit_factor
+      ) order by u.is_default desc, u.name::text, u.id), '[]'::jsonb)
+      from public.units u
+      left join public.units bu on bu.id = u.base_unit_id
+      where elevated or u.is_active
+    )
   ) into answer;
   return answer;
 end;
@@ -2820,7 +2835,11 @@ begin
         'category', case when c.id is null then null else jsonb_build_object('id', c.id, 'name', c.name::text) end,
         'subcategory', case when sc.id is null then null else jsonb_build_object('id', sc.id, 'name', sc.name::text) end,
         'brand', case when b.id is null then null else jsonb_build_object('id', b.id, 'name', b.name::text, 'isVerified', b.is_verified) end,
-        'unit', case when u.id is null then null else jsonb_build_object('id', u.id, 'name', u.name::text, 'abbreviation', u.abbreviation::text) end,
+        'unit', case when u.id is null then null else jsonb_build_object(
+          'id', u.id, 'name', u.name::text, 'abbreviation', u.abbreviation::text,
+          'baseUnitId', u.base_unit_id, 'baseUnitName', bu.name::text,
+          'baseUnitAbbreviation', bu.abbreviation::text, 'baseUnitFactor', u.base_unit_factor
+        ) end,
         'latestPrice', case when latest.id is null then null else jsonb_build_object(
           'id', latest.id, 'storeId', latest.store_id, 'storeName', latest.store_name,
           'price', latest.price, 'originalPrice', latest.original_price, 'quantity', latest.quantity,
@@ -2832,6 +2851,7 @@ begin
     left join public.categories sc on sc.id = p.subcategory_id
     left join public.brands b on b.id = p.brand_id
     left join public.units u on u.id = p.unit_id
+    left join public.units bu on bu.id = u.base_unit_id
     left join lateral (
       select e.id, e.store_id, s.name::text as store_name, e.price, e.original_price, e.quantity, e.created_at
       from public.product_entries e join public.stores s on s.id = e.store_id
@@ -3078,6 +3098,8 @@ create or replace function public.catalog_save_unit(
   unit_id uuid,
   name text,
   abbreviation text,
+  base_unit_id uuid,
+  base_unit_factor numeric,
   is_active boolean,
   make_default boolean,
   replacement_default_id uuid,
@@ -3093,8 +3115,13 @@ begin
   if not public.has_app_role(array['admin','moderator']::public.app_role[]) then raise exception using errcode = '42501', message = 'NOT_AUTHORIZED'; end if;
   prior := public.begin_mutation(mutation_id, 'catalog_save_unit', 'unit', target_id);
   if prior is not null and prior <> '{"pending":true}'::jsonb then return prior; end if;
-  if char_length(clean_name) not between 1 and 80 or clean_abbreviation !~ '^[a-z][a-z0-9]{0,15}$' or (make_default and not is_active) then
+  if char_length(clean_name) not between 1 and 80 or clean_abbreviation !~ '^[a-z][a-z0-9]{0,15}$' or (make_default and not is_active)
+    or (base_unit_id is null) <> (base_unit_factor is null) or base_unit_factor is not null and base_unit_factor <= 0 or base_unit_id = target_id then
     raise exception using errcode = '22023', message = 'VALIDATION_ERROR';
+  end if;
+  if base_unit_id is not null then
+    perform 1 from public.units u where u.id = base_unit_id and u.is_active for update;
+    if not found then raise exception using errcode = '22023', message = 'VALIDATION_ERROR'; end if;
   end if;
   if unit_id is not null then
     select u.is_default into was_default from public.units u where u.id = unit_id for update;
@@ -3110,13 +3137,24 @@ begin
     update public.units u set is_default = true where u.id = replacement_default_id;
   end if;
   if unit_id is null then
-    insert into public.units(id, name, abbreviation, is_active, is_default) values (target_id, clean_name, clean_abbreviation, is_active, make_default);
+    insert into public.units(id, name, abbreviation, base_unit_id, base_unit_factor, is_active, is_default)
+    values (target_id, clean_name, clean_abbreviation, base_unit_id, base_unit_factor, is_active, make_default);
   else
-    update public.units u set name = clean_name, abbreviation = clean_abbreviation, is_active = catalog_save_unit.is_active,
+    update public.units u set name = clean_name, abbreviation = clean_abbreviation,
+      base_unit_id = catalog_save_unit.base_unit_id, base_unit_factor = catalog_save_unit.base_unit_factor,
+      is_active = catalog_save_unit.is_active,
       is_default = case when make_default then true when was_default and not is_active then false else u.is_default end
     where u.id = unit_id;
   end if;
-  select jsonb_build_object('id', u.id, 'name', u.name::text, 'abbreviation', u.abbreviation::text, 'isActive', u.is_active, 'isDefault', u.is_default) into answer from public.units u where u.id = target_id;
+  select jsonb_build_object(
+    'id', u.id, 'name', u.name::text, 'abbreviation', u.abbreviation::text,
+    'isActive', u.is_active, 'isDefault', u.is_default,
+    'baseUnitId', u.base_unit_id, 'baseUnitName', bu.name::text,
+    'baseUnitAbbreviation', bu.abbreviation::text, 'baseUnitFactor', u.base_unit_factor
+  ) into answer
+  from public.units u
+  left join public.units bu on bu.id = u.base_unit_id
+  where u.id = target_id;
   perform public.write_audit_event('catalog.unit_saved', 'unit', target_id, jsonb_build_object('isActive', is_active, 'isDefault', make_default));
   return public.complete_mutation(mutation_id, answer);
 end;
@@ -3874,7 +3912,7 @@ grant execute on function public.create_product(jsonb,uuid) to authenticated;
 grant execute on function public.catalog_save_store(uuid,text,boolean,integer,uuid) to authenticated;
 grant execute on function public.catalog_save_category(uuid,text,uuid,boolean,integer,uuid) to authenticated;
 grant execute on function public.catalog_save_brand(uuid,text,boolean,boolean,uuid) to authenticated;
-grant execute on function public.catalog_save_unit(uuid,text,text,boolean,boolean,uuid,uuid) to authenticated;
+grant execute on function public.catalog_save_unit(uuid,text,text,uuid,numeric,boolean,boolean,uuid,uuid) to authenticated;
 grant execute on function public.catalog_save_product(uuid,jsonb,uuid) to authenticated;
 grant execute on function public.catalog_save_price_entry(uuid,jsonb,uuid) to authenticated;
 grant execute on function public.catalog_delete_price_entry(uuid,uuid) to authenticated;
@@ -3904,5 +3942,15 @@ values
   ('Litre', 'l', false, true),
   ('Dose', 'dose', false, true)
 on conflict (abbreviation) do nothing;
+
+update public.units child
+set base_unit_id = parent.id, base_unit_factor = 1000
+from public.units parent
+where child.abbreviation = 'g' and parent.abbreviation = 'kg';
+
+update public.units child
+set base_unit_id = parent.id, base_unit_factor = 1000
+from public.units parent
+where child.abbreviation = 'ml' and parent.abbreviation = 'l';
 
 commit;
