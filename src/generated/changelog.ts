@@ -12,6 +12,18 @@ export interface GeneratedChangelogRelease {
 
 export const CHANGELOG = [
   {
+    "version": "1.0.22",
+    "date": "2026-09-23",
+    "categories": [
+      {
+        "name": "Changed",
+        "entries": [
+          "Split receipt uploads into explicit camera and image-library choices when `RECEIPT_ALLOW_LIBRARY_UPLOADS` is enabled, while keeping camera-only capture as the default deployment behavior."
+        ]
+      }
+    ]
+  },
+  {
     "version": "1.0.21",
     "date": "2026-09-23",
     "categories": [

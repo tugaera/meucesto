@@ -5,13 +5,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
-import { Field, Input } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { PageHeading, Surface } from "@/components/ui/surface";
 import { dictionaries, type TranslationKey } from "@/i18n";
 import { useT } from "@/i18n/provider";
 import { initialReceiptImportResult } from "@/lib/actions/types";
 import { cn } from "@/lib/utils";
+import { ReceiptFileInput } from "./receipt-file-input";
 import { createReceiptImportAction } from "./receipt-actions";
 
 export function ReceiptImportForm({ aiEnabled, allowLibraryUploads }: { aiEnabled: boolean; allowLibraryUploads: boolean }) {
@@ -48,9 +48,7 @@ export function ReceiptImportForm({ aiEnabled, allowLibraryUploads }: { aiEnable
         </div>
         {!aiEnabled ? <p role="status" className="border-l-4 border-[var(--coral)] bg-[var(--coral-soft)] px-4 py-3 text-sm">{t("ai.unavailable")}</p> : null}
         <form action={action} className="grid gap-4">
-          <Field label={t("history.receiptFile")} htmlFor="history-import-receipt" hint={t("history.importFileHint")}>
-            <Input id="history-import-receipt" name="receipt" type="file" accept="image/jpeg,image/png,image/webp" capture={allowLibraryUploads ? undefined : "environment"} required className="py-2" />
-          </Field>
+          <ReceiptFileInput id="history-import-receipt" label={t("history.receiptFile")} hint={t("history.importFileHint")} allowLibraryUploads={allowLibraryUploads} />
           <input type="hidden" name="cartMutationId" value={ids.cart} />
           <input type="hidden" name="receiptMutationId" value={ids.receipt} />
           <input type="hidden" name="cleanupMutationId" value={ids.cleanup} />

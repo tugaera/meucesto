@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.22] - 2026-09-23
+
+### Changed
+- Split receipt uploads into explicit camera and image-library choices when `RECEIPT_ALLOW_LIBRARY_UPLOADS` is enabled, while keeping camera-only capture as the default deployment behavior.
+
 ## [1.0.21] - 2026-09-23
 
 ### Added

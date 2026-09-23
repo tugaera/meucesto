@@ -6,7 +6,6 @@ import Image from "next/image";
 import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ConfirmButton } from "@/components/ui/confirm-button";
-import { Field, Input } from "@/components/ui/field";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { dictionaries, type TranslationKey } from "@/i18n";
 import { useT } from "@/i18n/provider";
@@ -14,6 +13,7 @@ import { useMutationId } from "@/lib/actions/use-mutation-id";
 import { cn } from "@/lib/utils";
 import type { ReceiptMetadata, ReferenceData } from "@/types/domain";
 import { AiReceiptImport } from "./ai-receipt-import";
+import { ReceiptFileInput } from "./receipt-file-input";
 import {
   deleteReceiptAction, getReceiptSignedUrlsAction, reorderReceiptsAction, uploadReceiptAction, type ReceiptMutationResult } from "./receipt-actions";
 
@@ -100,9 +100,7 @@ export function ReceiptPanel({ cartId, receipts, references, canManage, aiEnable
       {!aiEnabled && receipts.length ? <p className="text-xs text-[var(--muted)]">{t("ai.unavailable")}</p> : null}
       {canManage ? (
         <form action={uploadAction} className="grid gap-3 border-t border-[var(--line)] pt-5">
-          <Field label={t("history.receiptFile")} htmlFor="receipt-file">
-            <Input id="receipt-file" name="receipt" type="file" accept="image/jpeg,image/png,image/webp" capture={allowLibraryUploads ? undefined : "environment"} required className="py-2" />
-          </Field>
+          <ReceiptFileInput id="receipt-file" label={t("history.receiptFile")} allowLibraryUploads={allowLibraryUploads} />
           <input type="hidden" name="cartId" value={cartId} />
           <input type="hidden" name="mutationId" value={uploadMutationId} />
           <ReceiptFeedback result={uploadState} />
